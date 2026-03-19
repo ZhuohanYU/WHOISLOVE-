@@ -1,0 +1,23 @@
+{
+  "id": 1,
+  "name": "Alex",
+  "age": 28,
+  "occupation": "产品经理",
+  "interests": [
+    "摄影",
+    "爬山",
+    "精品咖啡",
+    "独立电影",
+    "播客"
+  ],
+  "personality_description": "外向但有内省一面，喜欢深度对话，不喜欢闲聊。朋友说我很幽默，但有时候有点话多。对新事物好奇心强，容易对某件事一下子变得很痴迷。",
+  "relationship_goals": "认真的长期关系，希望找到可以一起成长的人",
+  "communication_style": "直接、幽默，喜欢用类比和故事来表达观点",
+  "wechat_signature": "在努力成为更好的人的路上 🌱",
+  "wechat_moments_description": "常发爬山时拍的风景照、咖啡店打卡、偶尔转发有意思的长文。最近去了黄山，发了一组黑白胶片风格的照片。头像是一张逆光的背影。",
+  "instagram_bio": "📍 Shanghai | coffee → mountains → repeat",
+  "instagram_posts_description": "风格统一的深色调，主要是旅行、城市街拍和咖啡。最近发了在大理的一组照片，很多人说有文艺感。",
+  "dating_app_bio": "产品经理，下班后的身份是业余摄影师和咖啡爱好者。喜欢带人去我发现的宝藏咖啡馆。第一次约会我会想去有意思的地方，不是普通的饭局。",
+  "additional_notes": "MBTI 是 ENTP，但我觉得这些标签意义不大。养了一只叫「像素」的橘猫。",
+  "updated_at": "2026-03-14T17:00:31.893510"
+}

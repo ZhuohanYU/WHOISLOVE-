@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhereIsmyLove 💘</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💘</text></svg>">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f15; color: #e8e8f0; }
+  .sidebar { background: #16161f; border-right: 1px solid #2a2a3a; }
+  .card { background: #1c1c28; border: 1px solid #2a2a3a; border-radius: 12px; }
+  .nav-item { border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #9090a8; }
+  .nav-item:hover { background: #22223a; color: #e8e8f0; }
+  .nav-item.active { background: linear-gradient(135deg, #ff4b8b22, #9b59ff22); color: #ff4b8b; border: 1px solid #ff4b8b44; }
+  .btn-primary { background: linear-gradient(135deg, #ff4b8b, #9b59ff); color: white; border: none; border-radius: 8px; padding: 10px 20px; cursor: pointer; font-weight: 600; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary { background: #2a2a3a; color: #e8e8f0; border: 1px solid #3a3a4a; border-radius: 8px; padding: 8px 16px; cursor: pointer; transition: background 0.15s; }
+  .btn-secondary:hover { background: #3a3a4a; }
+  .btn-danger { background: #3a1a1a; color: #ff6b6b; border: 1px solid #ff4444; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+  .input { background: #12121a; border: 1px solid #2a2a3a; border-radius: 8px; padding: 10px 14px; color: #e8e8f0; width: 100%; outline: none; transition: border 0.15s; }
+  .input:focus { border-color: #ff4b8b; }
+  .textarea { background: #12121a; border: 1px solid #2a2a3a; border-radius: 8px; padding: 10px 14px; color: #e8e8f0; width: 100%; outline: none; resize: vertical; min-height: 80px; transition: border 0.15s; }
+  .textarea:focus { border-color: #ff4b8b; }
+  .label { font-size: 13px; color: #7070a0; margin-bottom: 5px; display: block; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .tab { padding: 8px 16px; cursor: pointer; border-bottom: 2px solid transparent; font-size: 14px; color: #7070a0; transition: all 0.15s; }
+  .tab.active { color: #ff4b8b; border-bottom-color: #ff4b8b; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .metric-card { background: #12121a; border-radius: 10px; padding: 16px; text-align: center; }
+  .metric-value { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #ff4b8b, #9b59ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .metric-label { font-size: 12px; color: #7070a0; margin-top: 4px; }
+  .chat-bubble-her { background: #2a1a2e; border: 1px solid #3d1f5a; border-radius: 12px 12px 12px 4px; padding: 12px 16px; max-width: 80%; margin-bottom: 12px; }
+  .chat-bubble-user { background: #1a2a1e; border: 1px solid #1f5a2f; border-radius: 12px 12px 4px 12px; padding: 12px 16px; max-width: 80%; margin-left: auto; margin-bottom: 12px; }
+  .bar-fill { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #ff4b8b, #9b59ff); }
+  .tag { background: #2a2a3a; border-radius: 20px; padding: 4px 12px; font-size: 12px; color: #9090c0; display: inline-block; margin: 3px; }
+  .badge-pink { background: #ff4b8b22; color: #ff4b8b; border: 1px solid #ff4b8b44; border-radius: 20px; padding: 3px 10px; font-size: 12px; display: inline-block; margin: 2px; }
+  .badge-purple { background: #9b59ff22; color: #c084fc; border: 1px solid #9b59ff44; border-radius: 20px; padding: 3px 10px; font-size: 12px; display: inline-block; margin: 2px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid #2a2a3a; border-top-color: #ff4b8b; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .drop-zone { border: 2px dashed #3a3a4a; border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: #ff4b8b; background: #ff4b8b08; }
+  .file-item { background: #12121a; border: 1px solid #2a2a3a; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+  .progress-bar { height: 4px; background: #2a2a3a; border-radius: 2px; overflow: hidden; margin-top: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #ff4b8b, #9b59ff); transition: width 0.3s; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #1c1c28; border: 1px solid #2a2a3a; border-radius: 10px; padding: 14px 20px; z-index: 1000; transform: translateY(100px); opacity: 0; transition: all 0.3s; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  select.input { appearance: none; }
+</style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+<!-- ─── Sidebar ─────────────────────────────────────────────── -->
+<div class="sidebar w-64 flex-shrink-0 flex flex-col p-4 overflow-y-auto">
+  <div class="mb-6 mt-2">
+    <div class="text-2xl font-bold" style="background: linear-gradient(135deg,#ff4b8b,#9b59ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">💘 WhereIsmyLove</div>
+    <div class="text-xs text-gray-500 mt-1">Dating Simulation World</div>
+  </div>
+
+  <nav class="flex flex-col gap-1 mb-6">
+    <div class="nav-item active" onclick="showPage('profile')" data-i18n-nav="nav_profile">👤 My Profile</div>
+    <div class="nav-item" onclick="showPage('target')" data-i18n-nav="nav_target">💝 Their Profile</div>
+    <div class="nav-item" onclick="showPage('analysis')" data-i18n-nav="nav_analysis">🧠 Personality</div>
+    <div class="nav-item" onclick="showPage('simulate')" data-i18n-nav="nav_simulate">💬 Date Sim</div>
+    <div class="nav-item" onclick="showPage('history')" data-i18n-nav="nav_history">📋 History</div>
+  </nav>
+
+  <div class="mt-auto">
+    <div id="lbl_current_target" class="label">Current Target</div>
+    <select id="targetSelect" class="input text-sm" onchange="onTargetChange()">
+      <option id="opt_select_target" value="">— Select Target —</option>
+    </select>
+    <button id="btn_new_target" class="btn-secondary w-full mt-2 text-sm" onclick="showPage('target'); switchTab('tabNew')">+ New Target</button>
+  </div>
+</div>
+
+<!-- ─── Main ────────────────────────────────────────────────── -->
+<div class="flex-1 overflow-y-auto p-6">
+
+<!-- PAGE: My Profile -->
+<div id="page-profile" class="page active">
+  <h1 id="page_profile_title_el" class="text-2xl font-bold mb-1">👤 My Profile</h1>
+  <p id="page_profile_sub_el" class="text-gray-500 text-sm mb-4">Fill in your info — AI will simulate your dating style</p>
+
+  <div class="flex gap-2 border-b border-gray-700 mb-6">
+    <div id="uTabBasic" class="tab active" onclick="switchUserTab('uTabBasic')">📝 Basic Info</div>
+    <div id="uTabSocial" class="tab" onclick="switchUserTab('uTabSocial')">🌐 Social Media</div>
+    <div id="uTabFiles" class="tab" onclick="switchUserTab('uTabFiles')">📎 Files</div>
+    <div id="uTabSelf" class="tab" onclick="switchUserTab('uTabSelf')">🧠 My Personality</div>
+  </div>
+
+  <!-- Tab: Basic Info -->
+  <div id="tab-uTabBasic" class="tab-content active max-w-2xl">
+    <div class="card p-6">
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label id="lbl_name" class="label">Name *</label>
+          <input id="u_name" class="input" placeholder="Your name" />
+        </div>
+        <div>
+          <label id="lbl_age" class="label">Age *</label>
+          <input id="u_age" class="input" type="number" min="18" max="80" placeholder="25" />
+        </div>
+        <div>
+          <label id="lbl_job" class="label">Occupation</label>
+          <input id="u_job" class="input" placeholder="e.g. Product Manager" />
+        </div>
+        <div>
+          <label id="lbl_comm" class="label">Communication Style</label>
+          <input id="u_comm" class="input" placeholder="e.g. Humorous, loves deep talks" />
+        </div>
+      </div>
+      <div class="mb-4">
+        <label id="lbl_personality" class="label">Personality</label>
+        <textarea id="u_personality" class="textarea" placeholder="Describe your personality in a few sentences..."></textarea>
+      </div>
+      <div class="mb-4">
+        <label id="lbl_interests" class="label">Interests (comma-separated)</label>
+        <input id="u_interests" class="input" placeholder="e.g. Photography, Hiking, Reading, Coffee" />
+      </div>
+      <div class="mb-6">
+        <label id="lbl_goals" class="label">Relationship Goals</label>
+        <input id="u_goals" class="input" placeholder="e.g. Serious long-term relationship" />
+      </div>
+      <button id="save_profile_btn" class="btn-primary" onclick="saveUserProfile()">💾 Save Profile</button>
+    </div>
+  </div>
+
+  <!-- Tab: Social Media -->
+  <div id="tab-uTabSocial" class="tab-content max-w-2xl">
+    <div class="card p-6">
+      <h3 id="lbl_wechat" class="text-sm font-semibold text-purple-400 mb-4">💬 WeChat</h3>
+      <div class="mb-4">
+        <label id="lbl_wechat_sig" class="label">Signature</label>
+        <input id="u_wechat_sig" class="input" placeholder="Your WeChat signature..." />
+      </div>
+      <div class="mb-6">
+        <label id="lbl_moments" class="label">Moments Description</label>
+        <textarea id="u_wechat_moments" class="textarea" rows="4"
+          placeholder="Describe your recent Moments posts..."></textarea>
+      </div>
+
+      <h3 id="lbl_instagram" class="text-sm font-semibold text-pink-400 mb-4">📸 Instagram</h3>
+      <div class="mb-4">
+        <label class="label">Instagram Bio</label>
+        <input id="u_ig_bio" class="input" placeholder="Your Instagram bio..." />
+      </div>
+      <div class="mb-6">
+        <label id="lbl_ig_posts_lbl" class="label">Post Description</label>
+        <textarea id="u_ig_posts" class="textarea" rows="3"
+          placeholder="Describe your posting style..."></textarea>
+      </div>
+
+      <h3 id="lbl_dating_app" class="text-sm font-semibold text-blue-400 mb-4">💘 Dating App</h3>
+      <div class="mb-6">
+        <label id="lbl_dating_app_bio_lbl" class="label">Dating App Bio (Tinder / Hinge / Bumble etc.)</label>
+        <textarea id="u_dating_bio" class="textarea" rows="3"
+          placeholder="Your dating app bio..."></textarea>
+      </div>
+
+      <div class="mb-6">
+        <label id="lbl_extra_lbl" class="label">Additional Notes</label>
+        <textarea id="u_notes" class="textarea" rows="3"
+          placeholder="Any extra info to simulate your real personality..."></textarea>
+      </div>
+
+      <button id="save_profile_btn2" class="btn-primary" onclick="saveUserProfile()">💾 Save Profile</button>
+    </div>
+  </div>
+
+  <!-- Tab: Files -->
+  <div id="tab-uTabFiles" class="tab-content max-w-2xl">
+    <div class="card p-6 mb-6">
+      <div class="mb-4">
+        <label id="lbl_u_file_src" class="label">File Source</label>
+        <select id="uUploadPlatform" class="input">
+          <option id="opt_u_wechat">WeChat Screenshot</option>
+          <option>Instagram</option>
+          <option id="opt_u_moments">Moments Screenshot</option>
+          <option id="opt_u_other">Other</option>
+        </select>
+      </div>
+      <div class="drop-zone" id="uDropZone" onclick="document.getElementById('uFileInput').click()">
+        <div class="text-3xl mb-2">📁</div>
+        <div id="lbl_u_drop_text" class="text-gray-400 text-sm">Click or drag files here</div>
+        <div id="lbl_u_filetypes" class="text-gray-500 text-xs mt-1">Supports PDF · Word · JPG/PNG · Text</div>
+        <div class="mt-2 flex items-center justify-center gap-2">
+          <span id="lbl_u_or" class="text-gray-600 text-xs">or</span>
+          <span id="lbl_u_paste" class="text-xs px-2 py-1 rounded" style="background:#2a2a3a;color:#9b59ff;border:1px solid #9b59ff44">⌘V / Ctrl+V Paste Screenshot</span>
+        </div>
+        <input type="file" id="uFileInput" class="hidden" multiple
+          accept=".pdf,.docx,.doc,.jpg,.jpeg,.png,.webp,.txt,.md"
+          onchange="onUserFileSelect(this.files)" />
+      </div>
+      <div id="uUploadProgress" class="hidden mt-3">
+        <div class="text-sm text-gray-400 mb-1" id="uUploadStatus">Uploading...</div>
+        <div class="progress-bar"><div class="progress-fill" id="uProgressFill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div>
+      <h3 id="lbl_uploaded_files" class="text-sm font-semibold text-gray-400 mb-3">Uploaded Files</h3>
+      <div id="uFilesList" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- Tab: My Personality -->
+  <div id="tab-uTabSelf" class="tab-content max-w-4xl">
+    <div class="flex items-center justify-between mb-6">
+      <p id="lbl_self_analysis_desc" class="text-sm text-gray-500">AI infers your true personality from the info you've filled in</p>
+      <button class="btn-primary" onclick="runSelfAnalysis()" id="selfAnalyzeBtn">🔍 Analyze My Personality</button>
+    </div>
+
+    <div id="selfAnalysisRunning" class="hidden card p-8 text-center mb-6">
+      <div class="spinner mx-auto mb-4"></div>
+      <div class="text-gray-400">AI deep analysis in progress (≈30-60s)...</div>
+    </div>
+
+    <div id="selfAnalysisResult" class="hidden">
+      <div class="card p-6 mb-6">
+        <canvas id="selfRadarChart" height="280"></canvas>
+      </div>
+      <div class="grid grid-cols-5 gap-3 mb-6" id="selfBigFiveCards"></div>
+      <div class="grid grid-cols-2 gap-6 mb-6">
+        <div class="card p-5">
+          <h3 id="lbl_sp_interests" class="text-sm font-semibold text-pink-400 mb-3">True Interests (inferred)</h3>
+          <div id="sp_interests" class="flex flex-wrap gap-1"></div>
+          <h3 id="lbl_sp_values" class="text-sm font-semibold text-purple-400 mt-4 mb-3">Core Values</h3>
+          <div id="sp_values" class="flex flex-wrap gap-1"></div>
+          <div class="mt-4 space-y-2 text-sm">
+            <div><span id="lbl_sp_attachment" class="text-gray-500">Attachment: </span><span id="sp_attachment" class="badge-pink ml-1"></span></div>
+            <div><span id="lbl_sp_love" class="text-gray-500">Love Language: </span><span id="sp_love" class="text-gray-200 ml-1"></span></div>
+            <div><span id="lbl_sp_comm" class="text-gray-500">Communication: </span><span id="sp_comm" class="text-gray-200 ml-1"></span></div>
+          </div>
+        </div>
+        <div class="card p-5">
+          <h3 id="lbl_sp_goals" class="text-sm font-semibold text-yellow-400 mb-3">What You're Looking For</h3>
+          <p id="sp_goals" class="text-sm text-gray-300 leading-relaxed"></p>
+          <h3 id="lbl_sp_triggers" class="text-sm font-semibold text-red-400 mt-4 mb-3">⚠️ Your Conflict Triggers</h3>
+          <div id="sp_triggers" class="space-y-1"></div>
+        </div>
+      </div>
+      <div class="card p-5 mb-4">
+        <h3 id="lbl_sp_summary" class="text-sm font-semibold text-gray-400 mb-3">Personality Summary</h3>
+        <p id="sp_summary" class="text-gray-200 leading-relaxed italic"></p>
+      </div>
+
+      <!-- Deep Self Analysis -->
+      <div id="sp_deep_section" class="hidden">
+        <div class="card p-5 mb-4" style="border-color:#9b59ff44">
+          <h3 id="lbl_sp_deep" class="text-sm font-semibold text-purple-400 mb-3">🔬 Deep Personality Profile</h3>
+          <p id="sp_who_they_are" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+        </div>
+        <div class="card p-5 mb-4" style="border-color:#ff4b8b44">
+          <h3 id="lbl_sp_dating_style" class="text-sm font-semibold mb-3" style="color:#ff4b8b">💘 Your Dating Style</h3>
+          <p id="sp_dating_style" class="text-sm text-gray-300 leading-relaxed"></p>
+        </div>
+        <div class="card p-5 mb-4" style="border-color:#facc1544">
+          <h3 id="lbl_sp_signal" class="text-sm font-semibold text-yellow-400 mb-3">🔎 Signal Decoder</h3>
+          <div id="sp_signal_decoder" class="space-y-3"></div>
+        </div>
+        <div class="card p-5 mb-4">
+          <h3 id="lbl_sp_wont_say" class="text-sm font-semibold text-orange-400 mb-3">🤫 What You Won't Say But Care About</h3>
+          <p id="sp_wont_say" class="text-sm text-gray-300 leading-relaxed italic"></p>
+        </div>
+        <div class="card p-5 mb-4">
+          <h3 id="lbl_sp_long_term" class="text-sm font-semibold text-teal-400 mb-3">🔮 Long-term Compatibility</h3>
+          <p id="sp_long_term" class="text-sm text-gray-300 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <details class="card p-5">
+        <summary id="lbl_sp_reasoning" class="cursor-pointer text-sm text-gray-500">🔍 Analysis Reasoning</summary>
+        <p id="sp_reasoning" class="text-xs text-gray-500 mt-3 leading-relaxed whitespace-pre-wrap"></p>
+      </details>
+    </div>
+
+    <div id="selfAnalysisEmpty" class="hidden card p-8 text-center text-gray-500 text-sm">
+      No results yet — click "Analyze My Personality" to start
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: Their Profile -->
+<div id="page-target" class="page">
+  <h1 id="page_target_title_el" class="text-2xl font-bold mb-1">💝 Their Profile</h1>
+  <p id="page_target_sub_el" class="text-gray-500 text-sm mb-4">Add their info — supports PDF / Word / Images</p>
+
+  <div class="flex gap-2 border-b border-gray-700 mb-6">
+    <div id="tabList" class="tab active" onclick="switchTab('tabList')">📋 All Targets</div>
+    <div id="tabNew" class="tab" onclick="switchTab('tabNew')">✏️ Edit / New</div>
+    <div id="tabFiles" class="tab" onclick="switchTab('tabFiles')">📎 Files</div>
+  </div>
+
+  <!-- Tab: All Targets -->
+  <div id="tab-tabList" class="tab-content active">
+    <div id="targetList" class="space-y-3 max-w-2xl"></div>
+  </div>
+
+  <!-- Tab: Edit/New -->
+  <div id="tab-tabNew" class="tab-content">
+    <div class="card p-6 max-w-2xl">
+      <input type="hidden" id="t_id" value="" />
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label id="lbl_t_name_lbl" class="label">Name / Nickname *</label>
+          <input id="t_name" class="input" placeholder="Their name" />
+        </div>
+        <div>
+          <label id="lbl_t_age_lbl" class="label">Age</label>
+          <input id="t_age" class="input" type="number" min="18" max="60" placeholder="25" />
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="label">📷 Instagram Bio</label>
+        <input id="t_ig_bio" class="input mb-2" placeholder="Paste their Instagram Bio..." />
+        <label id="lbl_t_ig_posts_lbl" class="label">Instagram Post Description</label>
+        <textarea id="t_ig_posts" class="textarea" placeholder="Describe their content, style, frequency..."></textarea>
+      </div>
+
+      <div class="mb-4">
+        <label id="lbl_t_linkedin_lbl" class="label">💼 LinkedIn Info</label>
+        <textarea id="t_linkedin" class="textarea" placeholder="Title, company, education..."></textarea>
+      </div>
+
+      <div class="mb-4">
+        <label id="lbl_t_facebook_lbl" class="label">📘 Facebook Info</label>
+        <textarea id="t_facebook" class="textarea" placeholder="Public content, family info..."></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label id="lbl_t_photos_lbl" class="label">📸 Photo Description</label>
+          <textarea id="t_photos" class="textarea" placeholder="Style, places, people in photos..."></textarea>
+        </div>
+        <div>
+          <label id="lbl_t_dating_lbl" class="label">💕 Dating App Bio</label>
+          <textarea id="t_dating" class="textarea" placeholder="Paste Hinge/Bumble/Tinder Bio..."></textarea>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <label id="lbl_t_notes_lbl" class="label">📝 Additional Notes</label>
+        <textarea id="t_notes" class="textarea" placeholder="Overall vibe, details you noticed..."></textarea>
+      </div>
+
+      <div class="flex gap-3">
+        <button id="save_target_btn" class="btn-primary" onclick="saveTarget()">💾 Save</button>
+        <button id="btn_clear_target" class="btn-secondary" onclick="clearTargetForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Files -->
+  <div id="tab-tabFiles" class="tab-content">
+    <div class="max-w-2xl">
+      <div id="filesTargetWarning" class="hidden card p-4 mb-4 text-yellow-400 text-sm"></div>
+
+      <div id="filesUploadArea" class="card p-6 mb-6">
+        <div class="mb-4">
+          <label id="lbl_t_file_src" class="label">File Source Platform</label>
+          <select id="uploadPlatform" class="input">
+            <option>Instagram</option>
+            <option>LinkedIn</option>
+            <option>Facebook</option>
+            <option>Dating App</option>
+            <option id="opt_t_other">Other</option>
+          </select>
+        </div>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="text-3xl mb-2">📁</div>
+          <div id="lbl_t_drop_text" class="text-gray-400 text-sm">Click or drag files here</div>
+          <div id="lbl_t_filetypes" class="text-gray-500 text-xs mt-1">Supports PDF · Word · JPG/PNG · Text</div>
+          <div class="mt-2 flex items-center justify-center gap-2">
+            <span id="lbl_t_or" class="text-gray-600 text-xs">or</span>
+            <span id="lbl_t_paste" class="text-xs px-2 py-1 rounded" style="background:#2a2a3a;color:#9b59ff;border:1px solid #9b59ff44">⌘V / Ctrl+V Paste Screenshot</span>
+          </div>
+          <input type="file" id="fileInput" class="hidden" multiple
+            accept=".pdf,.docx,.doc,.jpg,.jpeg,.png,.webp,.txt,.md"
+            onchange="onFileSelect(this.files)" />
+        </div>
+        <div id="uploadProgress" class="hidden mt-3">
+          <div class="text-sm text-gray-400 mb-1" id="uploadStatus">Uploading...</div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div>
+        <h3 id="lbl_uploaded_files2" class="text-sm font-semibold text-gray-400 mb-3">Uploaded Files</h3>
+        <div id="filesList" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: Personality Analysis -->
+<div id="page-analysis" class="page">
+  <h1 id="page_analysis_title_el" class="text-2xl font-bold mb-1">🧠 Personality Analysis</h1>
+  <p id="page_analysis_sub_el" class="text-gray-500 text-sm mb-6">AI infers their true personality from social data</p>
+
+  <div id="analysisNoTarget" class="card p-6 text-center text-gray-500">
+    Select a target from the sidebar first
+  </div>
+
+  <div id="analysisContent" class="hidden max-w-4xl">
+    <div class="flex items-center justify-between mb-6">
+      <div id="analysisTargetName" class="text-lg font-semibold"></div>
+      <button class="btn-primary" onclick="runAnalysis()" id="analyzeBtn">🔍 Run Analysis</button>
+    </div>
+
+    <div id="analysisRunning" class="hidden card p-8 text-center mb-6">
+      <div class="spinner mx-auto mb-4"></div>
+      <div class="text-gray-400">DeepSeek R1 deep analysis in progress (≈30-60s)...</div>
+    </div>
+
+    <div id="analysisResult" class="hidden">
+      <!-- Radar chart -->
+      <div class="card p-6 mb-6">
+        <canvas id="radarChart" height="280"></canvas>
+      </div>
+
+      <!-- Big Five scores -->
+      <div class="grid grid-cols-5 gap-3 mb-6" id="bigFiveCards"></div>
+
+      <!-- Details -->
+      <div class="grid grid-cols-2 gap-6 mb-6">
+        <div class="card p-5">
+          <h3 id="lbl_p_interests" class="text-sm font-semibold text-pink-400 mb-3">True Interests (inferred)</h3>
+          <div id="p_interests" class="flex flex-wrap gap-1"></div>
+          <h3 id="lbl_p_values" class="text-sm font-semibold text-purple-400 mt-4 mb-3">Core Values</h3>
+          <div id="p_values" class="flex flex-wrap gap-1"></div>
+          <div class="mt-4 space-y-2 text-sm">
+            <div><span id="lbl_p_attachment" class="text-gray-500">Attachment: </span><span id="p_attachment" class="badge-pink ml-1"></span></div>
+            <div><span id="lbl_p_love" class="text-gray-500">Love Language: </span><span id="p_love" class="text-gray-200 ml-1"></span></div>
+            <div><span id="lbl_p_comm" class="text-gray-500">Communication: </span><span id="p_comm" class="text-gray-200 ml-1"></span></div>
+          </div>
+        </div>
+        <div class="card p-5">
+          <h3 id="lbl_p_goals" class="text-sm font-semibold text-yellow-400 mb-3">What They're Really Looking For</h3>
+          <p id="p_goals" class="text-sm text-gray-300 leading-relaxed"></p>
+          <h3 id="lbl_p_triggers" class="text-sm font-semibold text-red-400 mt-4 mb-3">⚠️ Conflict Triggers</h3>
+          <div id="p_triggers" class="space-y-1"></div>
+        </div>
+      </div>
+
+      <div class="card p-5 mb-4">
+        <h3 id="lbl_p_summary" class="text-sm font-semibold text-gray-400 mb-3">Personality Summary</h3>
+        <p id="p_summary" class="text-gray-200 leading-relaxed italic"></p>
+      </div>
+
+      <!-- Deep Analysis -->
+      <div id="p_deep_section" class="hidden">
+        <div class="card p-5 mb-4" style="border-color:#9b59ff44">
+          <h3 id="lbl_p_deep" class="text-sm font-semibold text-purple-400 mb-3">🔬 Deep Personality Profile</h3>
+          <p id="p_who_they_are" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+        </div>
+
+        <div class="card p-5 mb-4" style="border-color:#ff4b8b44">
+          <h3 id="lbl_p_dating_style" class="text-sm font-semibold mb-3" style="color:#ff4b8b">💘 Their Dating Style</h3>
+          <p id="p_dating_style" class="text-sm text-gray-300 leading-relaxed"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="card p-5">
+            <h3 id="lbl_p_impress" class="text-sm font-semibold text-green-400 mb-3">✨ How to Actually Impress Them</h3>
+            <div id="p_how_to_impress" class="space-y-2 text-sm text-gray-300"></div>
+          </div>
+          <div class="card p-5">
+            <h3 id="lbl_p_first_date2" class="text-sm font-semibold text-blue-400 mb-3">🗓️ Ideal First Date Ideas</h3>
+            <div id="p_first_date" class="space-y-2 text-sm text-gray-300"></div>
+          </div>
+        </div>
+
+        <div class="card p-5 mb-4" style="border-color:#facc1544">
+          <h3 id="lbl_p_signal" class="text-sm font-semibold text-yellow-400 mb-3">🔎 Signal Decoder</h3>
+          <div id="p_signal_decoder" class="space-y-3"></div>
+        </div>
+
+        <div class="card p-5 mb-4">
+          <h3 id="lbl_p_wont_say" class="text-sm font-semibold text-orange-400 mb-3">🤫 What They Won't Say But Care About</h3>
+          <p id="p_wont_say" class="text-sm text-gray-300 leading-relaxed italic"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="card p-5">
+            <h3 id="lbl_p_red_flags" class="text-sm font-semibold text-red-400 mb-3">⚠️ Red Flags to Watch</h3>
+            <div id="p_red_flags" class="space-y-2 text-sm text-gray-300"></div>
+          </div>
+          <div class="card p-5">
+            <h3 id="lbl_p_long_term" class="text-sm font-semibold text-teal-400 mb-3">🔮 Long-term Compatibility</h3>
+            <p id="p_long_term" class="text-sm text-gray-300 leading-relaxed"></p>
+          </div>
+        </div>
+      </div>
+
+      <details class="card p-5">
+        <summary id="lbl_p_reasoning" class="cursor-pointer text-sm text-gray-500">🔍 Analysis Reasoning</summary>
+        <p id="p_reasoning" class="text-xs text-gray-500 mt-3 leading-relaxed whitespace-pre-wrap"></p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: Date Simulation -->
+<div id="page-simulate" class="page">
+  <h1 id="page_simulate_title_el" class="text-2xl font-bold mb-1">💬 Date Simulation</h1>
+  <p id="page_simulate_sub_el" class="text-gray-500 text-sm mb-6">Enter a date scenario and watch the conversation unfold</p>
+
+  <div id="simNoTarget" class="card p-6 text-center text-gray-500">
+    Select a target from the sidebar first and complete personality analysis
+  </div>
+
+  <div id="simContent" class="hidden max-w-3xl">
+    <div id="simLastDate" class="hidden card p-4 mb-4 text-sm text-gray-400"></div>
+
+    <!-- Mode toggle -->
+    <div class="flex gap-2 mb-4">
+      <button id="simModeManual" class="btn-primary text-sm" onclick="setSimMode('manual')">✏️ <span id="lbl_sim_manual">Manual</span></button>
+      <button id="simModeAuto" class="btn-secondary text-sm" onclick="setSimMode('auto')">🤖 <span id="lbl_sim_auto">Auto</span></button>
+    </div>
+
+    <!-- Auto mode panel -->
+    <div id="simAutoPanel" class="hidden card p-6 mb-6">
+      <p id="lbl_auto_desc" class="text-sm text-gray-400 mb-4">AI auto-generates a date scenario based on both personalities and simulates the full date</p>
+      <div id="autoScenarioPreview" class="hidden mb-4 p-3 rounded-lg text-sm" style="background:#1a1a2e;border:1px solid #ff4b8b44">
+        <div class="text-gray-400 mb-1" id="lbl_auto_scenario_title">🎯 AI-Generated Date Scenario</div>
+        <div id="autoScenarioText" class="text-gray-200"></div>
+      </div>
+      <button class="btn-primary w-full" onclick="startAutoSimulation()" id="autoSimBtn">🤖 <span id="lbl_auto_btn">Auto-Simulate Date</span></button>
+    </div>
+
+    <!-- Setup form -->
+    <div class="card p-6 mb-6" id="simForm">
+      <h3 class="font-semibold mb-4" id="simDateLabel">Date #1 Setup</h3>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label id="lbl_location" class="label">Location</label>
+          <input id="sim_location" class="input" placeholder="e.g. Rooftop bar in SoHo" />
+        </div>
+        <div>
+          <label id="lbl_activity" class="label">Activity</label>
+          <input id="sim_activity" class="input" placeholder="e.g. Evening drinks" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label id="lbl_sim_mode" class="label">Special Mode</label>
+          <select id="sim_mode" class="input">
+            <option id="opt_mode_normal" value="normal">Regular Date</option>
+            <option id="opt_mode_marriage" value="marriage">Simulate Married Life</option>
+          </select>
+        </div>
+        <div>
+          <label id="lbl_exchanges" class="label">Conversation Turns</label>
+          <input id="sim_exchanges" class="input" type="number" min="4" max="20" value="10" />
+        </div>
+      </div>
+      <button class="btn-primary" onclick="startSimulation()" id="startSimBtn">▶ Start Simulation</button>
+    </div>
+
+    <!-- Live conversation -->
+    <div id="simRunning" class="hidden card p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="spinner"></div>
+        <span class="text-gray-400 text-sm" id="simProgress"></span>
+      </div>
+      <div id="simConversation" class="space-y-1 max-h-96 overflow-y-auto"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="simResults" class="hidden">
+      <!-- Scores -->
+      <div class="grid grid-cols-4 gap-3 mb-5">
+        <div class="metric-card"><div class="metric-value" id="r_chemistry">-</div><div id="r_chemistry_lbl" class="metric-label">Chemistry</div></div>
+        <div class="metric-card"><div class="metric-value" id="r_interest">-</div><div id="r_interest_lbl" class="metric-label">Their Interest</div></div>
+        <div class="metric-card"><div class="metric-value" id="r_perf">-</div><div id="r_perf_lbl" class="metric-label">Your Performance</div></div>
+        <div class="metric-card"><div class="metric-value" id="r_next">-</div><div id="r_next_lbl" class="metric-label">Next Date %</div></div>
+      </div>
+
+      <!-- Full Date Recap -->
+      <div class="card p-5 mb-4">
+        <div id="r_narrative_lbl" class="text-sm font-semibold text-gray-300 mb-3">📖 Full Date Recap</div>
+        <p id="r_narrative" class="text-gray-300 text-sm leading-relaxed mb-3"></p>
+        <p id="r_summary" class="text-gray-500 text-xs leading-relaxed italic border-t border-gray-700 pt-3"></p>
+      </div>
+
+      <!-- Key Turning Points -->
+      <div class="card p-5 mb-4">
+        <div id="r_turning_lbl" class="text-sm font-semibold text-yellow-400 mb-3">⚡ Key Turning Points</div>
+        <div id="r_turning_points" class="space-y-3"></div>
+      </div>
+
+      <!-- Best / Awkward Moments -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="card p-4">
+          <div id="r_best_lbl" class="text-sm text-green-400 font-semibold mb-2">✨ Best Moments</div>
+          <div id="r_best" class="space-y-1 text-sm text-gray-300"></div>
+        </div>
+        <div class="card p-4">
+          <div id="r_awkward_lbl" class="text-sm text-red-400 font-semibold mb-2">😬 Awkward Moments</div>
+          <div id="r_awkward" class="space-y-1 text-sm text-gray-300"></div>
+        </div>
+      </div>
+
+      <!-- Her Psychology + Compatibility -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="card p-5">
+          <div id="r_her_psych_lbl" class="text-sm font-semibold text-purple-400 mb-2">🧠 Her Psychology</div>
+          <p id="r_her_psychology" class="text-sm text-gray-300 leading-relaxed"></p>
+        </div>
+        <div class="card p-5">
+          <div id="r_compat_lbl" class="text-sm font-semibold text-blue-400 mb-2">🔗 Compatibility Analysis</div>
+          <p id="r_compatibility" class="text-sm text-gray-300 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <!-- Her Inner Monologue -->
+      <div class="card p-5 mb-4" style="border-color:#ff4b8b44">
+        <div id="r_feedback_lbl" class="text-sm font-semibold mb-2" style="color:#ff4b8b">💭 Her Inner Monologue After</div>
+        <p id="r_feedback" class="text-sm text-gray-300 italic leading-relaxed"></p>
+      </div>
+
+      <!-- What She Told Her Friends -->
+      <div class="card p-5 mb-4" style="border-color:#9b59ff44">
+        <div id="r_friends_lbl" class="text-sm font-semibold text-purple-300 mb-2">👯 What She Told Her Friends</div>
+        <p id="r_friends" class="text-sm text-gray-300 leading-relaxed whitespace-pre-line"></p>
+      </div>
+
+      <!-- Relationship Momentum + Next Date -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="card p-5">
+          <div id="r_momentum_lbl" class="text-sm font-semibold text-orange-400 mb-2">📈 Relationship Momentum</div>
+          <p id="r_momentum" class="text-sm text-gray-300 leading-relaxed"></p>
+        </div>
+        <div class="card p-5">
+          <div id="r_next_sug_lbl" class="text-sm font-semibold text-green-400 mb-2">🗓️ Next Date Suggestion</div>
+          <p id="r_next_suggestion" class="text-sm text-gray-300 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <!-- Advice -->
+      <div class="card p-5 mb-5">
+        <div id="r_advice_lbl" class="text-sm font-semibold text-blue-400 mb-3">💡 Actionable Advice for Next Time</div>
+        <div id="r_advice" class="space-y-2 text-sm text-gray-300"></div>
+      </div>
+
+      <div class="flex gap-3 mt-2">
+        <button class="btn-primary flex-1" onclick="resetSimulation()" id="btnNextDate">▶ <span id="lbl_btn_next_date">Next Date</span></button>
+        <button class="btn-secondary flex-1" onclick="showCompatibilityReport()" id="btnCompatReport">💘 <span id="lbl_btn_compat">Compatibility Report</span></button>
+      </div>
+    </div>
+
+    <!-- Compatibility Report -->
+    <div id="compatReport" class="hidden mt-6">
+      <div class="card p-6 mb-4" style="border-color:#ff4b8b88;background:linear-gradient(135deg,#1a0a12,#0d0d1a)">
+        <div class="text-center mb-6">
+          <div id="compatScoreCircle" class="inline-flex items-center justify-center w-24 h-24 rounded-full mb-3 text-3xl font-bold" style="border:3px solid #ff4b8b">-</div>
+          <div id="lbl_compat_score" class="text-gray-400 text-sm">Overall Match</div>
+        </div>
+        <div id="compatVerdict" class="text-gray-200 text-sm leading-relaxed mb-5 text-center italic"></div>
+
+        <div class="grid grid-cols-2 gap-4 mb-5">
+          <div>
+            <div id="lbl_compat_pros" class="text-green-400 text-sm font-semibold mb-2">✅ Why You'd Work</div>
+            <div id="compatPros" class="space-y-1 text-sm text-gray-300"></div>
+          </div>
+          <div>
+            <div id="lbl_compat_cons" class="text-red-400 text-sm font-semibold mb-2">⚠️ Potential Challenges</div>
+            <div id="compatCons" class="space-y-1 text-sm text-gray-300"></div>
+          </div>
+        </div>
+
+        <div class="card p-4 mb-5" style="background:#0d0d1a">
+          <div id="lbl_compat_pred" class="text-purple-400 text-sm font-semibold mb-2">🔮 What a Relationship Would Look Like</div>
+          <p id="compatPrediction" class="text-sm text-gray-300 leading-relaxed"></p>
+        </div>
+
+        <div id="compatRecommendation" class="text-center text-sm text-gray-400 mb-6 italic"></div>
+
+        <!-- Decision buttons -->
+        <div id="compatDecision" class="space-y-3">
+          <div class="text-center text-gray-300 font-semibold mb-3" id="lbl_compat_decide">Your decision…</div>
+          <button class="btn-primary w-full text-lg py-3" onclick="onDateDecision(true)" id="btnGoDate">💑 <span id="lbl_go_date">Ask them out! Go on a real first date</span></button>
+          <button class="btn-secondary w-full" onclick="onDateDecision(false)" id="btnSkipDate">😔 <span id="lbl_skip_date">Pass — not the right fit</span></button>
+        </div>
+
+        <div id="compatDecisionResult" class="hidden text-center py-6">
+          <div id="compatDecisionText" class="text-2xl mb-3"></div>
+          <p id="compatDecisionDesc" class="text-gray-400 text-sm"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: History -->
+<div id="page-history" class="page">
+  <h1 id="page_history_title_el" class="text-2xl font-bold mb-1">📋 History</h1>
+  <p id="page_history_sub_el" class="text-gray-500 text-sm mb-4">Archive of all simulated dates</p>
+
+  <div class="flex gap-2 border-b border-gray-700 mb-6">
+    <div id="hTabAll" class="tab active" onclick="switchHistoryTab('hTabAll')">📊 All Comparisons</div>
+    <div id="hTabDetail" class="tab" onclick="switchHistoryTab('hTabDetail')">📅 Detailed Records</div>
+    <div id="hTabAuto" class="tab" onclick="switchHistoryTab('hTabAuto')">🤖 <span id="lbl_tab_auto_archive">Auto Archive</span></div>
+  </div>
+
+  <!-- Tab: All Comparisons -->
+  <div id="tab-hTabAll" class="tab-content active">
+    <div id="compareEmpty" class="card p-6 text-center text-gray-500 hidden">No date history yet</div>
+
+    <!-- Summary cards -->
+    <div id="summaryCards" class="grid grid-cols-1 gap-4 mb-6 max-w-4xl"></div>
+
+    <!-- Bar chart -->
+    <div id="compareChartWrap" class="card p-4 mb-6 max-w-4xl hidden">
+      <canvas id="compareChart" height="160"></canvas>
+    </div>
+
+    <!-- All sessions timeline -->
+    <div class="max-w-4xl">
+      <h3 id="lbl_all_timeline" class="text-sm font-semibold text-gray-400 mb-3">All Date Timeline</h3>
+      <div id="allSessionsList" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- Tab: Detailed Records -->
+  <div id="tab-hTabDetail" class="tab-content">
+    <div id="historyNoTarget" class="card p-6 text-center text-gray-500"></div>
+    <div id="historyContent" class="hidden max-w-3xl">
+      <div class="card p-4 mb-6"><canvas id="trendChart" height="120"></canvas></div>
+      <div id="historyList" class="space-y-4"></div>
+    </div>
+  </div>
+
+  <!-- Tab: Auto Archive -->
+  <div id="tab-hTabAuto" class="tab-content">
+    <div id="autoArchiveNoTarget" class="card p-6 text-center text-gray-500"></div>
+    <div id="autoArchiveList" class="space-y-5 max-w-3xl"></div>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ─── i18n ─────────────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    lang_label: 'Language',
+    nav_profile: '👤 My Profile', nav_target: '💝 Their Profile',
+    nav_analysis: '🧠 Personality', nav_simulate: '💬 Date Sim', nav_history: '📋 History',
+    page_profile_title: '👤 My Profile', page_profile_sub: 'Fill in your info — AI will simulate your dating style',
+    tab_basic: '📝 Basic Info', tab_social: '📱 Social Media', tab_files: '📎 Files', tab_self: '🧠 My Personality',
+    label_name: 'Name', label_age: 'Age', label_job: 'Occupation', label_comm: 'Communication Style',
+    label_personality: 'Personality', label_interests: 'Interests', label_goals: 'Relationship Goals',
+    ph_name: 'Your name', ph_age: '25', ph_job: 'e.g. Product Manager', ph_comm: 'e.g. Humorous, loves deep talks',
+    ph_personality: 'Describe your personality in a few sentences...', ph_interests: 'e.g. Photography, Hiking, Reading, Coffee',
+    ph_goals: 'e.g. Serious long-term relationship',
+    label_wechat: '💬 WeChat', label_wechat_sig: 'Signature', label_moments: 'Moments Description',
+    ph_wechat_sig: 'Your WeChat signature...', ph_moments: 'Describe your recent Moments posts...',
+    label_instagram: '📸 Instagram', label_ig_bio: 'Bio', label_ig_posts: 'Post Style',
+    ph_ig_bio: 'Your Instagram bio...', ph_ig_posts: 'Describe your posting style...',
+    label_dating_app: '💘 Dating App', label_dating_bio: 'Bio', label_extra: 'Additional Notes',
+    ph_dating_bio: 'Your dating app bio...', ph_extra: 'Any extra info to simulate your real personality...',
+    btn_save: '💾 Save Profile', btn_analyze_self: '🔍 Analyze My Personality', label_uploaded_files: 'Uploaded Files',
+    self_analysis_desc: 'AI infers your true personality from the info you\'ve filled in',
+    self_analysis_running: '🔄 Analyzing, please wait...', self_analysis_empty: 'No results yet — click "Analyze My Personality" to start',
+    page_target_title: '💝 Their Profile', page_target_sub: 'Add their info — supports PDF / Word / Images',
+    tab_all: '📋 All Targets', tab_edit: '✏️ Edit / New', tab_files2: '📎 Files',
+    label_target_name: 'Their Name', label_target_age: 'Age (optional)',
+    label_ig: 'Instagram', label_ig_bio2: 'Bio', label_ig_posts2: 'Post Description',
+    ph_ig_bio2: "Paste their Instagram Bio...", ph_ig_posts2: 'Describe their content, style, frequency...',
+    label_linkedin: 'LinkedIn', ph_linkedin: 'Title, company, education...',
+    label_facebook: 'Facebook / WeChat', ph_facebook: 'Public content, family info...',
+    label_photos: 'Photo Description', ph_photos: 'Style, places, people in photos...',
+    label_dating2: 'Dating App Bio', ph_dating2: 'Paste Hinge/Bumble/Tinder Bio...',
+    label_notes: 'Extra Notes', ph_notes: 'Overall vibe, details you noticed...',
+    btn_save_target: '💾 Save', label_uploaded_files2: 'Uploaded Files',
+    page_analysis_title: '🧠 Personality Analysis', page_analysis_sub: 'AI infers their true personality from social data',
+    btn_analyze: '🔍 Run Analysis', analysis_running: '🔄 Analyzing (≈30s)...',
+    label_interests: 'True Interests (inferred)', label_values: 'Core Values',
+    label_attachment: 'Attachment: ', label_love: 'Love Language: ', label_comm2: 'Communication: ',
+    label_goals2: 'What They\'re Really Looking For', label_goals2_self: 'What You\'re Looking For',
+    label_triggers: '⚠️ Conflict Triggers', label_triggers_self: '⚠️ Your Conflict Triggers',
+    label_openness: 'Openness', label_conscientiousness: 'Conscientiousness',
+    label_extraversion: 'Extraversion', label_agreeableness: 'Agreeableness', label_neuroticism: 'Neuroticism',
+    label_summary: 'Personality Summary', label_reasoning: '🔍 Analysis Reasoning',
+    label_deep: '🔬 Deep Personality Profile', label_dating_style: '💘 Their Dating Style', label_dating_style_self: '💘 Your Dating Style',
+    label_impress: '✨ How to Actually Impress Them', label_first_date: '🗓️ Ideal First Date Ideas',
+    label_signal: '🔎 Signal Decoder', label_wont_say: '🤫 What They Won\'t Say But Care About',
+    label_red_flags: '⚠️ Red Flags to Watch', label_long_term: '🔮 Long-term Compatibility',
+    analysis_empty: 'Select a target and click "Run Analysis"',
+    page_simulate_title: '💬 Date Simulation', page_simulate_sub: 'Enter a date scenario and watch the conversation unfold',
+    label_location: 'Location', label_activity: 'Activity', ph_location: 'e.g. Rooftop bar in SoHo', ph_activity: 'e.g. Evening drinks',
+    label_exchanges: 'Conversation turns (affects depth)',
+    btn_start: '▶ Start Simulation', btn_next: '▶ Next Date',
+    sim_no_target: 'Select a target from the sidebar first and complete personality analysis',
+    label_chemistry: 'Chemistry', label_interest: 'Their Interest', label_perf: 'Your Performance', label_next_prob: 'Next Date %',
+    label_narrative: '📖 Full Date Recap', label_turning: '⚡ Key Turning Points',
+    label_best: '✨ Best Moments', label_awkward: '😬 Awkward Moments',
+    label_her_psych: '🧠 Her Psychology', label_compat: '🔗 Compatibility Analysis',
+    label_feedback: '💭 Her Inner Monologue After', label_friends: '👯 What She Told Her Friends',
+    label_momentum: '📈 Relationship Momentum', label_next_sug: '🗓️ Next Date Suggestion',
+    label_advice: '💡 Actionable Advice for Next Time',
+    page_history_title: '📋 History', page_history_sub: 'Archive of all simulated dates',
+    tab_all_hist: '📊 All Comparisons', tab_detail: '📅 Detailed Records',
+    history_empty: 'No date history yet',
+    hist_no_target: 'No date records yet',
+    hist_no_sessions: 'No records',
+    hist_not_simulated: 'No sims yet',
+    hist_sessions_count: (n, d) => `${n} dates · Last ${d}`,
+    hist_avg_chem: 'Avg Chem', hist_avg_int: 'Avg Interest', hist_avg_perf: 'Avg Perf',
+    hist_progress: 'Progress %',
+    hist_chart_chem: 'Avg Chemistry', hist_chart_int: 'Avg Their Interest', hist_chart_perf: 'Avg Your Performance',
+    hist_married: '💍 Married Life', hist_date_n: n => `Date #${n}`,
+    hist_married_short: '💍 Married', hist_date_n_short: n => `#${n}`,
+    hist_chem_short: 'Chem', hist_int_short: 'Interest', hist_perf_short: 'Perf', hist_prob_short: '%',
+    hist_chem_label: 'Chemistry', hist_int_label: 'Their Interest', hist_perf_label: 'Your Performance',
+    hist_trend_chem: 'Chemistry', hist_trend_int: 'Their Interest', hist_trend_perf: 'Your Performance',
+    hist_advice: '💡 Advice', hist_full_conv: 'View Full Conversation',
+    sim_date_label: n => `Date #${n} Setup`,
+    sim_last_date: (n, c, i) => `Last date (#${n}): Chemistry ${c}/10, Their Interest ${i}/10`,
+    years_old: ' y/o',
+    lbl_sim_manual: 'Manual', lbl_sim_auto: 'Auto',
+    lbl_auto_desc: 'AI auto-generates a date scenario based on both personalities and simulates the full date',
+    lbl_auto_scenario_title: '🎯 AI-Generated Date Scenario',
+    lbl_auto_btn: 'Auto-Simulate Date',
+    lbl_btn_next_date: 'Next Date', lbl_btn_compat: 'Compatibility Report',
+    lbl_compat_score: 'Overall Match', lbl_compat_pros: '✅ Why You\'d Work',
+    lbl_compat_cons: '⚠️ Potential Challenges', lbl_compat_pred: '🔮 What a Relationship Would Look Like',
+    lbl_compat_decide: 'Your decision…',
+    lbl_go_date: 'Ask them out! Go on a real first date', lbl_skip_date: 'Pass — not the right fit',
+    compat_loading: '💘 AI is analyzing your compatibility...',
+    compat_yes_text: '💑 Great!', compat_yes_desc: 'Take the leap and ask for that real date. Good luck! 🍀',
+    compat_no_text: '😔 That\'s okay', compat_no_desc: 'The simulation says maybe not, but real life is always more complex than AI. Keep an open heart.',
+    auto_generating: '🤖 AI is generating a date scenario...',
+    tab_auto_archive: 'Auto Archive',
+    archive_no_target: 'Select a target and run Auto-Simulate first',
+    archive_empty: 'No auto-simulation records yet — use Auto mode on the Date Sim page',
+    archive_date_label: n => `Auto Date #${n}`,
+    archive_compat_score: 'Match',
+    archive_decision_yes: '💑 Asked them out', archive_decision_no: '😔 Decided to pass',
+    archive_no_compat: 'Compatibility report not yet generated',
+    label_current_target: 'Current Target', opt_select_target: '— Select Target —', btn_new_target: '+ New Target',
+    label_all_timeline: 'All Date Timeline', hist_no_target_sidebar: 'Select a target from the sidebar first',
+    label_sim_mode: 'Special Mode', opt_mode_normal: 'Regular Date', opt_mode_marriage: 'Simulate Married Life',
+    // Social media labels
+    label_ig_posts_lbl: 'Post Description', label_dating_app_bio_lbl: 'Dating App Bio (Tinder / Hinge / Bumble etc.)',
+    label_extra_lbl: 'Additional Notes',
+    // File upload
+    lbl_file_src: 'File Source', lbl_file_src2: 'File Source Platform',
+    opt_wechat: 'WeChat Screenshot', opt_moments: 'Moments Screenshot', opt_other: 'Other',
+    lbl_drop_text: 'Click or drag files here', lbl_filetypes: 'Supports PDF · Word · JPG/PNG · Text', lbl_or: 'or', lbl_paste: '⌘V / Ctrl+V Paste Screenshot',
+    // Target form labels
+    lbl_t_name_lbl: 'Name / Nickname *', lbl_t_age_lbl: 'Age',
+    lbl_t_ig_posts_lbl: 'Instagram Post Description', lbl_t_linkedin_lbl: '💼 LinkedIn Info',
+    lbl_t_facebook_lbl: '📘 Facebook Info', lbl_t_photos_lbl: '📸 Photo Description',
+    lbl_t_dating_lbl: '💕 Dating App Bio', lbl_t_notes_lbl: '📝 Additional Notes',
+    btn_clear: 'Clear', btn_edit: 'Edit', btn_delete: 'Delete',
+    files_warning: '⚠️ Select a target from the sidebar, or create one in Edit / New',
+    no_files_yet: 'No files uploaded yet',
+    target_list_empty: 'No targets added yet — go to Edit / New to create one',
+    no_bio: 'No bio',
+    confirm_delete_target: 'Delete this target and all related data?',
+    toast_deleted: 'Deleted', name_required: 'Name is required',
+    select_target_first: 'Please select a target first',
+    uploading_msg: (name, i, n) => `Processing ${name} (${i}/${n})...`,
+    upload_done: n => `✅ ${n} files uploaded!`,
+    upload_fail: name => `Upload failed: ${name}`,
+    lbl_uploaded_files2_str: 'Uploaded Files',
+  }
+};
+
+let currentLang = 'en';
+
+function t(key) { return I18N.en[key] || key; }
+
+function applyTranslations() {
+  // Nav items
+  document.querySelectorAll('[data-i18n-nav]').forEach(el => {
+    const key = el.getAttribute('data-i18n-nav');
+    el.textContent = t(key);
+  });
+  // Lang label
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  // Page titles
+  _setText('page_profile_title_el', 'page_profile_title');
+  _setText('page_profile_sub_el', 'page_profile_sub');
+  _setText('page_target_title_el', 'page_target_title');
+  _setText('page_target_sub_el', 'page_target_sub');
+  _setText('page_analysis_title_el', 'page_analysis_title');
+  _setText('page_analysis_sub_el', 'page_analysis_sub');
+  _setText('page_simulate_title_el', 'page_simulate_title');
+  _setText('page_simulate_sub_el', 'page_simulate_sub');
+  _setText('page_history_title_el', 'page_history_title');
+  _setText('page_history_sub_el', 'page_history_sub');
+  // Profile tabs
+  _setText('uTabBasic', 'tab_basic'); _setText('uTabSocial', 'tab_social');
+  _setText('uTabFiles', 'tab_files'); _setText('uTabSelf', 'tab_self');
+  // Profile form labels
+  _setText('lbl_name', 'label_name'); _setText('lbl_age', 'label_age');
+  _setText('lbl_job', 'label_job'); _setText('lbl_comm', 'label_comm');
+  _setText('lbl_personality', 'label_personality'); _setText('lbl_interests', 'label_interests');
+  _setText('lbl_goals', 'label_goals');
+  _setPH('u_name', 'ph_name'); _setPH('u_age', 'ph_age'); _setPH('u_job', 'ph_job');
+  _setPH('u_comm', 'ph_comm'); _setPH('u_personality', 'ph_personality');
+  _setPH('u_interests', 'ph_interests'); _setPH('u_goals', 'ph_goals');
+  _setText('save_profile_btn', 'btn_save'); _setText('save_profile_btn2', 'btn_save');
+  _setText('lbl_wechat', 'label_wechat'); _setText('lbl_wechat_sig', 'label_wechat_sig');
+  _setText('lbl_moments', 'label_moments'); _setPH('u_wechat_sig', 'ph_wechat_sig');
+  _setPH('u_wechat_moments', 'ph_moments');
+  _setText('lbl_instagram', 'label_instagram'); _setPH('u_ig_bio', 'ph_ig_bio');
+  _setPH('u_ig_posts', 'ph_ig_posts');
+  _setText('lbl_dating_app', 'label_dating_app'); _setPH('u_dating_bio', 'ph_dating_bio');
+  _setPH('u_extra', 'ph_extra');
+  _setText('selfAnalyzeBtn', 'btn_analyze_self');
+  _setText('lbl_self_analysis_desc', 'self_analysis_desc');
+  _setText('lbl_uploaded_files', 'label_uploaded_files');
+  _setText('selfAnalysisEmpty', 'self_analysis_empty');
+  // Target page
+  _setText('tabList', 'tab_all'); _setText('tabNew', 'tab_edit'); _setText('tabFiles', 'tab_files2');
+  _setPH('t_name', 'label_target_name'); _setPH('t_ig_bio', 'ph_ig_bio2');
+  _setPH('t_ig_posts', 'ph_ig_posts2'); _setPH('t_linkedin', 'ph_linkedin');
+  _setPH('t_facebook', 'ph_facebook'); _setPH('t_photos', 'ph_photos');
+  _setPH('t_dating', 'ph_dating2'); _setPH('t_notes', 'ph_notes');
+  _setText('save_target_btn', 'btn_save_target');
+  _setText('lbl_uploaded_files2', 'label_uploaded_files2');
+  // Analysis page
+  _setText('analyzeBtn', 'btn_analyze');
+  _setText('analysisEmpty', 'analysis_empty');
+  // Analysis result section headers
+  _setText('lbl_p_interests', 'label_interests'); _setText('lbl_p_values', 'label_values');
+  _setText('lbl_p_attachment', 'label_attachment'); _setText('lbl_p_love', 'label_love');
+  _setText('lbl_p_comm', 'label_comm2');
+  _setText('lbl_p_goals', 'label_goals2'); _setText('lbl_p_triggers', 'label_triggers');
+  _setText('lbl_p_summary', 'label_summary');
+  _setText('lbl_p_deep', 'label_deep'); _setText('lbl_p_dating_style', 'label_dating_style');
+  _setText('lbl_p_impress', 'label_impress'); _setText('lbl_p_first_date', 'label_first_date');
+  _setText('lbl_p_first_date2', 'label_first_date');
+  _setText('lbl_p_reasoning', 'label_reasoning');
+  _setText('lbl_p_signal', 'label_signal'); _setText('lbl_p_wont_say', 'label_wont_say');
+  _setText('lbl_p_red_flags', 'label_red_flags'); _setText('lbl_p_long_term', 'label_long_term');
+  // Self analysis headers
+  _setText('lbl_sp_interests', 'label_interests'); _setText('lbl_sp_values', 'label_values');
+  _setText('lbl_sp_attachment', 'label_attachment'); _setText('lbl_sp_love', 'label_love');
+  _setText('lbl_sp_comm', 'label_comm2');
+  _setText('lbl_sp_goals', 'label_goals2_self'); _setText('lbl_sp_triggers', 'label_triggers_self');
+  _setText('lbl_sp_summary', 'label_summary');
+  _setText('lbl_sp_deep', 'label_deep'); _setText('lbl_sp_dating_style', 'label_dating_style_self');
+  _setText('lbl_sp_reasoning', 'label_reasoning');
+  _setText('lbl_sp_signal', 'label_signal'); _setText('lbl_sp_wont_say', 'label_wont_say');
+  _setText('lbl_sp_long_term', 'label_long_term');
+  // Simulate page — auto mode
+  _setText('lbl_sim_manual', 'lbl_sim_manual'); _setText('lbl_sim_auto', 'lbl_sim_auto');
+  _setText('lbl_auto_desc', 'lbl_auto_desc'); _setText('lbl_auto_scenario_title', 'lbl_auto_scenario_title');
+  _setText('lbl_auto_btn', 'lbl_auto_btn');
+  _setText('lbl_btn_next_date', 'lbl_btn_next_date'); _setText('lbl_btn_compat', 'lbl_btn_compat');
+  _setText('lbl_compat_score', 'lbl_compat_score'); _setText('lbl_compat_pros', 'lbl_compat_pros');
+  _setText('lbl_compat_cons', 'lbl_compat_cons'); _setText('lbl_compat_pred', 'lbl_compat_pred');
+  _setText('lbl_compat_decide', 'lbl_compat_decide');
+  _setText('lbl_go_date', 'lbl_go_date'); _setText('lbl_skip_date', 'lbl_skip_date');
+  // Simulate page
+  _setText('simNoTarget', 'sim_no_target');
+  _setText('lbl_location', 'label_location'); _setPH('sim_location', 'ph_location');
+  _setText('lbl_activity', 'label_activity'); _setPH('sim_activity', 'ph_activity');
+  _setText('lbl_exchanges', 'label_exchanges');
+  _setText('startSimBtn', 'btn_start');
+  _setText('r_chemistry_lbl', 'label_chemistry'); _setText('r_interest_lbl', 'label_interest');
+  _setText('r_perf_lbl', 'label_perf'); _setText('r_next_lbl', 'label_next_prob');
+  _setText('r_narrative_lbl', 'label_narrative'); _setText('r_turning_lbl', 'label_turning');
+  _setText('r_best_lbl', 'label_best'); _setText('r_awkward_lbl', 'label_awkward');
+  _setText('r_her_psych_lbl', 'label_her_psych'); _setText('r_compat_lbl', 'label_compat');
+  _setText('r_feedback_lbl', 'label_feedback'); _setText('r_friends_lbl', 'label_friends');
+  _setText('r_momentum_lbl', 'label_momentum'); _setText('r_next_sug_lbl', 'label_next_sug');
+  _setText('r_advice_lbl', 'label_advice');
+  // History page
+  _setText('hTabAll', 'tab_all_hist'); _setText('hTabDetail', 'tab_detail');
+  _setText('compareEmpty', 'history_empty');
+  _setText('lbl_tab_auto_archive', 'tab_auto_archive');
+  _setText('lbl_all_timeline', 'label_all_timeline');
+  _setText('historyNoTarget', 'hist_no_target_sidebar');
+  // Sidebar
+  _setText('lbl_current_target', 'label_current_target');
+  _setText('btn_new_target', 'btn_new_target');
+  _setText('opt_select_target', 'opt_select_target');
+  // Simulate mode
+  _setText('lbl_sim_mode', 'label_sim_mode');
+  _setText('opt_mode_normal', 'opt_mode_normal');
+  _setText('opt_mode_marriage', 'opt_mode_marriage');
+  // Social media form labels
+  _setText('lbl_ig_posts_lbl', 'label_ig_posts_lbl');
+  _setText('lbl_dating_app_bio_lbl', 'label_dating_app_bio_lbl');
+  _setText('lbl_extra_lbl', 'label_extra_lbl');
+  // User file upload
+  _setText('lbl_u_file_src', 'lbl_file_src');
+  _setText('opt_u_wechat', 'opt_wechat'); _setText('opt_u_moments', 'opt_moments'); _setText('opt_u_other', 'opt_other');
+  _setText('lbl_u_drop_text', 'lbl_drop_text'); _setText('lbl_u_filetypes', 'lbl_filetypes'); _setText('lbl_u_or', 'lbl_or'); _setText('lbl_u_paste', 'lbl_paste');
+  // Target form labels
+  _setText('lbl_t_name_lbl', 'lbl_t_name_lbl'); _setText('lbl_t_age_lbl', 'lbl_t_age_lbl');
+  _setText('lbl_t_ig_posts_lbl', 'lbl_t_ig_posts_lbl'); _setText('lbl_t_linkedin_lbl', 'lbl_t_linkedin_lbl');
+  _setText('lbl_t_facebook_lbl', 'lbl_t_facebook_lbl'); _setText('lbl_t_photos_lbl', 'lbl_t_photos_lbl');
+  _setText('lbl_t_dating_lbl', 'lbl_t_dating_lbl'); _setText('lbl_t_notes_lbl', 'lbl_t_notes_lbl');
+  _setText('btn_clear_target', 'btn_clear');
+  // Target file upload
+  _setText('filesTargetWarning', 'files_warning');
+  _setText('lbl_t_file_src', 'lbl_file_src2');
+  _setText('opt_t_other', 'opt_other');
+  _setText('lbl_t_drop_text', 'lbl_drop_text'); _setText('lbl_t_filetypes', 'lbl_filetypes'); _setText('lbl_t_or', 'lbl_or'); _setText('lbl_t_paste', 'lbl_paste');
+}
+
+function _setText(id, key) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = t(key);
+}
+function _setPH(id, key) {
+  const el = document.getElementById(id);
+  if (el) el.placeholder = t(key);
+}
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let currentTargetId = null;
+let currentPage = 'profile';
+let radarChartInstance = null;
+let trendChartInstance = null;
+let simPollInterval = null;
+let currentTaskId = null;
+let convMessages = [];
+let lastAutoSessionId = null;  // tracks the most recent auto-simulated session for saving compat
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function showPage(name) {
+  currentPage = name;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'target') loadTargetList();
+  if (name === 'analysis') loadAnalysis();
+  if (name === 'simulate') loadSimulatePage();
+  if (name === 'history') loadHistory();
+  if (name === 'target' && document.getElementById('tabFiles').classList.contains('active')) loadFiles();
+}
+
+function switchTab(tabId) {
+  // Only toggle tabs within the target page
+  const targetPage = document.getElementById('page-target');
+  targetPage.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  targetPage.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+  if (tabId === 'tabFiles') loadFiles();
+  if (tabId === 'tabList') loadTargetList();
+}
+
+function switchUserTab(tabId) {
+  const profilePage = document.getElementById('page-profile');
+  profilePage.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  profilePage.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+  if (tabId === 'uTabFiles') loadUserFiles();
+  if (tabId === 'uTabSelf') loadSelfPersonality();
+}
+
+// ─── Self Personality Analysis ────────────────────────────────────────────────
+let selfRadarChartInstance = null;
+
+async function loadSelfPersonality() {
+  try {
+    const p = await api('GET', `/user/personality?lang=${currentLang}`);
+    if (p && p.openness !== undefined) {
+      renderSelfPersonality(p);
+    } else {
+      document.getElementById('selfAnalysisResult').classList.add('hidden');
+      const empty = document.getElementById('selfAnalysisEmpty');
+      empty.textContent = '⚠️ No analysis yet. Click "Analyze My Personality" to generate.';
+      empty.classList.remove('hidden');
+    }
+  } catch(err) {
+    document.getElementById('selfAnalysisResult').classList.add('hidden');
+    document.getElementById('selfAnalysisEmpty').classList.remove('hidden');
+  }
+}
+
+async function runSelfAnalysis() {
+  document.getElementById('selfAnalyzeBtn').disabled = true;
+  document.getElementById('selfAnalysisRunning').classList.remove('hidden');
+  document.getElementById('selfAnalysisResult').classList.add('hidden');
+  document.getElementById('selfAnalysisEmpty').classList.add('hidden');
+
+  try {
+    const { task_id } = await api('POST', '/user/analyze', {lang: currentLang});
+    pollTask(task_id,
+      async () => {
+        document.getElementById('selfAnalysisRunning').classList.add('hidden');
+        document.getElementById('selfAnalyzeBtn').disabled = false;
+        const p = await api('GET', `/user/personality?lang=${currentLang}`);
+        renderSelfPersonality(p);
+        toast('✅ Self personality analysis complete!');
+      },
+      (err) => {
+        document.getElementById('selfAnalysisRunning').classList.add('hidden');
+        document.getElementById('selfAnalyzeBtn').disabled = false;
+        toast('Analysis failed: ' + err, 'err');
+      }
+    );
+  } catch(e) {
+    document.getElementById('selfAnalysisRunning').classList.add('hidden');
+    document.getElementById('selfAnalyzeBtn').disabled = false;
+    toast(e.message, 'err');
+  }
+}
+
+function renderSelfPersonality(p) {
+  try {
+    document.getElementById('selfAnalysisResult').classList.remove('hidden');
+    document.getElementById('selfAnalysisEmpty').classList.add('hidden');
+
+    const labels = [t('label_openness'), t('label_conscientiousness'), t('label_extraversion'), t('label_agreeableness'), t('label_neuroticism')];
+    const values = [p.openness, p.conscientiousness, p.extraversion, p.agreeableness, p.neuroticism];
+    if (selfRadarChartInstance) { selfRadarChartInstance.destroy(); selfRadarChartInstance = null; }
+    selfRadarChartInstance = new Chart(document.getElementById('selfRadarChart'), {
+      type: 'radar',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: 'rgba(155,89,255,0.15)',
+          borderColor: '#9b59ff',
+          pointBackgroundColor: '#9b59ff',
+          pointRadius: 4,
+        }]
+      },
+      options: {
+        scales: { r: { min: 0, max: 10, ticks: { color: '#555', stepSize: 2 }, grid: { color: '#2a2a3a' }, pointLabels: { color: '#9090c0', font: { size: 13 } } } },
+        plugins: { legend: { display: false } },
+      }
+    });
+
+    const traits = [
+      { label: t('label_openness'), val: p.openness, color: '#9b59ff' },
+      { label: t('label_conscientiousness'), val: p.conscientiousness, color: '#3498db' },
+      { label: t('label_extraversion'), val: p.extraversion, color: '#ff4b8b' },
+      { label: t('label_agreeableness'), val: p.agreeableness, color: '#2ecc71' },
+      { label: t('label_neuroticism'), val: p.neuroticism, color: '#e67e22' },
+    ];
+    document.getElementById('selfBigFiveCards').innerHTML = traits.map(tr => `
+      <div class="card p-4 text-center">
+        <div class="text-2xl font-bold mb-1" style="color:${tr.color}">${Number(tr.val).toFixed(1)}</div>
+        <div class="text-xs text-gray-500">${tr.label}</div>
+        <div class="mt-2 h-1 rounded-full bg-gray-700">
+          <div class="h-1 rounded-full" style="width:${Number(tr.val)*10}%;background:${tr.color}"></div>
+        </div>
+      </div>`).join('');
+
+    const interests = Array.isArray(p.true_interests) ? p.true_interests : [];
+    const values2 = Array.isArray(p.core_values) ? p.core_values : [];
+    const triggers = Array.isArray(p.conflict_triggers) ? p.conflict_triggers : [];
+
+    const noneStr = 'None';
+    document.getElementById('sp_interests').innerHTML = interests.map(i => `<span class="badge-pink">${i}</span>`).join('') || `<span class="text-gray-500 text-sm">${noneStr}</span>`;
+    document.getElementById('sp_values').innerHTML = values2.map(v => `<span class="badge-purple">${v}</span>`).join('') || `<span class="text-gray-500 text-sm">${noneStr}</span>`;
+    document.getElementById('sp_attachment').textContent = p.attachment_style || '';
+    document.getElementById('sp_love').textContent = p.love_language || '';
+    document.getElementById('sp_comm').textContent = p.communication_style || '';
+    document.getElementById('sp_goals').textContent = p.relationship_goals || '';
+    document.getElementById('sp_triggers').innerHTML = triggers.map(trig => `<div class="text-sm text-gray-300 mb-1">⚡ ${trig}</div>`).join('') || `<span class="text-gray-500 text-sm">${noneStr}</span>`;
+    document.getElementById('sp_summary').textContent = p.personality_summary || '';
+    document.getElementById('sp_reasoning').textContent = p.analysis_reasoning || '';
+
+    // Deep self analysis
+    const sda = p.deep_analysis || {};
+    const spDeep = document.getElementById('sp_deep_section');
+    if (sda.who_they_really_are) {
+      spDeep.classList.remove('hidden');
+      document.getElementById('sp_who_they_are').textContent = sda.who_they_really_are || '';
+      document.getElementById('sp_dating_style').textContent = sda.dating_style || '';
+      document.getElementById('sp_signal_decoder').innerHTML = (sda.signal_decoder || []).map(s =>
+        `<div class="border-l-2 border-yellow-500 pl-3">
+          <div class="text-xs text-yellow-300 font-medium">📡 ${s.signal}</div>
+          <div class="text-xs text-gray-400 mt-1">→ ${s.meaning}</div>
+        </div>`
+      ).join('');
+      document.getElementById('sp_wont_say').textContent = sda.what_they_wont_say || '';
+      document.getElementById('sp_long_term').textContent = sda.long_term_compatibility || '';
+    } else {
+      spDeep.classList.add('hidden');
+    }
+  } catch(err) {
+    toast('Failed to render personality report: ' + err.message, 'err');
+    console.error('renderSelfPersonality error:', err);
+  }
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.borderColor = type === 'ok' ? '#4ade80' : '#f87171';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─── API helpers ──────────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch('/api' + path, opts);
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'API error'); }
+  return r.json();
+}
+
+async function pollTask(taskId, onDone, onError) {
+  const interval = setInterval(async () => {
+    const task = await api('GET', '/tasks/' + taskId);
+    if (task.status === 'done') { clearInterval(interval); onDone(task); }
+    else if (task.status === 'error') { clearInterval(interval); onError(task.error); }
+  }, 2000);
+}
+
+// ─── User Profile ─────────────────────────────────────────────────────────────
+async function loadUserProfile() {
+  try {
+    const u = await api('GET', `/user?lang=${currentLang}`);
+    if (u.name) {
+      document.getElementById('u_name').value = u.name || '';
+      document.getElementById('u_age').value = u.age || '';
+      document.getElementById('u_job').value = u.occupation || '';
+      document.getElementById('u_comm').value = u.communication_style || '';
+      document.getElementById('u_personality').value = u.personality_description || '';
+      document.getElementById('u_interests').value = (u.interests || []).join(', ');
+      document.getElementById('u_goals').value = u.relationship_goals || '';
+      document.getElementById('u_wechat_sig').value = u.wechat_signature || '';
+      document.getElementById('u_wechat_moments').value = u.wechat_moments_description || '';
+      document.getElementById('u_ig_bio').value = u.instagram_bio || '';
+      document.getElementById('u_ig_posts').value = u.instagram_posts_description || '';
+      document.getElementById('u_dating_bio').value = u.dating_app_bio || '';
+      document.getElementById('u_notes').value = u.additional_notes || '';
+    }
+  } catch(e) {}
+}
+
+async function saveUserProfile() {
+  const name = document.getElementById('u_name').value.trim();
+  if (!name) { toast(t('name_required'), 'err'); return; }
+  try {
+    await api('POST', '/user', {
+      name,
+      age: parseInt(document.getElementById('u_age').value) || 25,
+      occupation: document.getElementById('u_job').value,
+      communication_style: document.getElementById('u_comm').value,
+      personality_description: document.getElementById('u_personality').value,
+      interests: document.getElementById('u_interests').value.split(',').map(s => s.trim()).filter(Boolean),
+      relationship_goals: document.getElementById('u_goals').value,
+      wechat_signature: document.getElementById('u_wechat_sig').value,
+      wechat_moments_description: document.getElementById('u_wechat_moments').value,
+      instagram_bio: document.getElementById('u_ig_bio').value,
+      instagram_posts_description: document.getElementById('u_ig_posts').value,
+      dating_app_bio: document.getElementById('u_dating_bio').value,
+      additional_notes: document.getElementById('u_notes').value,
+      lang: currentLang,
+    });
+    toast('✅ Profile saved!');
+  } catch(e) { toast(e.message, 'err'); }
+}
+
+// ─── User Files ────────────────────────────────────────────────────────────────
+async function loadUserFiles() {
+  const files = await api('GET', '/user/files');
+  const list = document.getElementById('uFilesList');
+  if (!files.length) {
+    list.innerHTML = `<div class="text-gray-600 text-sm">${t('no_files_yet')}</div>`;
+    return;
+  }
+  const icons = { PDF: '📄', Word: '📝', Image: '🖼️', Text: '📃' };
+  list.innerHTML = files.map(f => `
+    <div class="file-item">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="text-xl">${icons[f.filetype] || '📎'}</span>
+        <div class="min-w-0">
+          <div class="text-sm font-medium truncate">${f.filename}</div>
+          <div class="text-xs text-gray-500">${f.platform} · ${f.filetype} · ${f.uploaded_at.slice(0,10)}</div>
+          ${f.extracted_text_preview ? `<div class="text-xs text-gray-600 mt-1 line-clamp-2">${f.extracted_text_preview}</div>` : ''}
+        </div>
+      </div>
+      <button class="btn-danger flex-shrink-0" onclick="deleteUserFileItem(${f.id})">${t('btn_delete')}</button>
+    </div>
+  `).join('');
+}
+
+async function onUserFileSelect(files) {
+  const platform = document.getElementById('uUploadPlatform').value;
+  const progress = document.getElementById('uUploadProgress');
+  const status = document.getElementById('uUploadStatus');
+  const fill = document.getElementById('uProgressFill');
+  progress.classList.remove('hidden');
+
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    status.textContent = t('uploading_msg')(f.name, i+1, files.length);
+    fill.style.width = `${((i) / files.length) * 100}%`;
+    const fd = new FormData();
+    fd.append('platform', platform);
+    fd.append('file', f);
+    const r = await fetch('/api/user/files', { method: 'POST', body: fd });
+    if (!r.ok) { toast(t('upload_fail')(f.name), 'err'); }
+  }
+
+  fill.style.width = '100%';
+  status.textContent = t('upload_done')(files.length);
+  setTimeout(() => { progress.classList.add('hidden'); fill.style.width = '0%'; }, 2000);
+  loadUserFiles();
+  document.getElementById('uFileInput').value = '';
+}
+
+async function deleteUserFileItem(id) {
+  await api('DELETE', '/user/files/' + id);
+  loadUserFiles();
+  toast(t('toast_deleted'));
+}
+
+// ─── Targets ──────────────────────────────────────────────────────────────────
+async function loadTargetSelector() {
+  const targets = await api('GET', '/targets');
+  const sel = document.getElementById('targetSelect');
+  sel.innerHTML = '<option value="">— Select Target —</option>';
+  targets.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = `${t.name} (${t.age || '?'}${I18N.en.years_old})`;
+    if (t.id == currentTargetId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  // Auto-select first target if none selected
+  if (!currentTargetId && targets.length > 0) {
+    currentTargetId = targets[0].id;
+    sel.value = currentTargetId;
+    loadAnalysis();
+    loadSimulatePage();
+    loadHistory();
+  }
+}
+
+function onTargetChange() {
+  const val = document.getElementById('targetSelect').value;
+  currentTargetId = val ? parseInt(val) : null;
+  loadAnalysis();
+  loadSimulatePage();
+  loadHistory();
+}
+
+async function loadTargetList() {
+  const targets = await api('GET', '/targets');
+  const container = document.getElementById('targetList');
+  if (!targets.length) {
+    container.innerHTML = `<div class="text-gray-500 text-sm card p-4">${t('target_list_empty')}</div>`;
+    return;
+  }
+  container.innerHTML = targets.map(tgt => `
+    <div class="card p-4 flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">${tgt.name} <span class="text-gray-500 text-sm">${tgt.age || '?'}${t('years_old')}</span></div>
+        <div class="text-xs text-gray-500 mt-1 line-clamp-2">${tgt.dating_app_bio || tgt.instagram_bio || t('no_bio')}</div>
+      </div>
+      <div class="flex gap-2 flex-shrink-0">
+        <button class="btn-secondary text-xs" onclick="editTarget(${tgt.id})">${t('btn_edit')}</button>
+        <button class="btn-danger" onclick="deleteTarget(${tgt.id})">${t('btn_delete')}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function editTarget(id) {
+  const t = await api('GET', `/targets/${id}?lang=${currentLang}`);
+  document.getElementById('t_id').value = t.id;
+  document.getElementById('t_name').value = t.name || '';
+  document.getElementById('t_age').value = t.age || '';
+  document.getElementById('t_ig_bio').value = t.instagram_bio || '';
+  document.getElementById('t_ig_posts').value = t.instagram_posts_description || '';
+  document.getElementById('t_linkedin').value = t.linkedin_info || '';
+  document.getElementById('t_facebook').value = t.facebook_info || '';
+  document.getElementById('t_photos').value = t.photo_description || '';
+  document.getElementById('t_dating').value = t.dating_app_bio || '';
+  document.getElementById('t_notes').value = t.additional_notes || '';
+  switchTab('tabNew');
+  // Also set as current target
+  currentTargetId = id;
+  document.getElementById('targetSelect').value = id;
+}
+
+async function deleteTarget(id) {
+  if (!confirm(t('confirm_delete_target'))) return;
+  await api('DELETE', '/targets/' + id);
+  if (currentTargetId === id) { currentTargetId = null; }
+  await loadTargetSelector();
+  loadTargetList();
+  toast(t('toast_deleted'));
+}
+
+async function saveTarget() {
+  const name = document.getElementById('t_name').value.trim();
+  if (!name) { toast(t('name_required'), 'err'); return; }
+  const id = document.getElementById('t_id').value;
+  const body = {
+    id: id ? parseInt(id) : null,
+    name, age: parseInt(document.getElementById('t_age').value) || null,
+    instagram_bio: document.getElementById('t_ig_bio').value,
+    instagram_posts_description: document.getElementById('t_ig_posts').value,
+    linkedin_info: document.getElementById('t_linkedin').value,
+    facebook_info: document.getElementById('t_facebook').value,
+    photo_description: document.getElementById('t_photos').value,
+    dating_app_bio: document.getElementById('t_dating').value,
+    additional_notes: document.getElementById('t_notes').value,
+    lang: currentLang,
+  };
+  try {
+    if (id) {
+      await api('PUT', '/targets/' + id, body);
+      toast('✅ Updated!');
+    } else {
+      const res = await api('POST', '/targets', body);
+      currentTargetId = res.id;
+      document.getElementById('t_id').value = res.id;
+      toast('✅ Created!');
+    }
+    await loadTargetSelector();
+  } catch(e) { toast(e.message, 'err'); }
+}
+
+function clearTargetForm() {
+  ['t_id','t_name','t_age','t_ig_bio','t_ig_posts','t_linkedin','t_facebook','t_photos','t_dating','t_notes'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ─── Files ────────────────────────────────────────────────────────────────────
+async function loadFiles() {
+  const warn = document.getElementById('filesTargetWarning');
+  const area = document.getElementById('filesUploadArea');
+  if (!currentTargetId) {
+    warn.classList.remove('hidden');
+    area.classList.add('hidden');
+    document.getElementById('filesList').innerHTML = '';
+    return;
+  }
+  warn.classList.add('hidden');
+  area.classList.remove('hidden');
+
+  const files = await api('GET', '/targets/' + currentTargetId + '/files');
+  const list = document.getElementById('filesList');
+  if (!files.length) {
+    list.innerHTML = `<div class="text-gray-600 text-sm">${t('no_files_yet')}</div>`;
+    return;
+  }
+  const icons = { PDF: '📄', Word: '📝', Image: '🖼️', Text: '📃' };
+  list.innerHTML = files.map(f => `
+    <div class="file-item">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="text-xl">${icons[f.filetype] || '📎'}</span>
+        <div class="min-w-0">
+          <div class="text-sm font-medium truncate">${f.filename}</div>
+          <div class="text-xs text-gray-500">${f.platform} · ${f.filetype} · ${f.uploaded_at.slice(0,10)}</div>
+          ${f.extracted_text_preview ? `<div class="text-xs text-gray-600 mt-1 line-clamp-2">${f.extracted_text_preview}</div>` : ''}
+        </div>
+      </div>
+      <button class="btn-danger flex-shrink-0" onclick="deleteFileItem(${f.id})">${t('btn_delete')}</button>
+    </div>
+  `).join('');
+}
+
+async function onFileSelect(files) {
+  if (!currentTargetId) { toast(t('select_target_first'), 'err'); return; }
+  const platform = document.getElementById('uploadPlatform').value;
+  const progress = document.getElementById('uploadProgress');
+  const status = document.getElementById('uploadStatus');
+  const fill = document.getElementById('progressFill');
+  progress.classList.remove('hidden');
+
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    status.textContent = t('uploading_msg')(f.name, i+1, files.length);
+    fill.style.width = `${((i) / files.length) * 100}%`;
+
+    const fd = new FormData();
+    fd.append('platform', platform);
+    fd.append('file', f);
+    const r = await fetch(`/api/targets/${currentTargetId}/files`, { method: 'POST', body: fd });
+    if (!r.ok) { toast(t('upload_fail')(f.name), 'err'); }
+  }
+
+  fill.style.width = '100%';
+  status.textContent = t('upload_done')(files.length);
+  setTimeout(() => { progress.classList.add('hidden'); fill.style.width = '0%'; }, 2000);
+  loadFiles();
+  document.getElementById('fileInput').value = '';
+}
+
+async function deleteFileItem(id) {
+  await api('DELETE', '/files/' + id);
+  loadFiles();
+  toast(t('toast_deleted'));
+}
+
+// Drag & drop — target files
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  onFileSelect(e.dataTransfer.files);
+});
+
+// Drag & drop — user files
+const uDropZone = document.getElementById('uDropZone');
+uDropZone.addEventListener('dragover', e => { e.preventDefault(); uDropZone.classList.add('drag-over'); });
+uDropZone.addEventListener('dragleave', () => uDropZone.classList.remove('drag-over'));
+uDropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uDropZone.classList.remove('drag-over');
+  onUserFileSelect(e.dataTransfer.files);
+});
+
+// ─── Paste image from clipboard (Ctrl+V / ⌘V) ────────────────────────────────
+document.addEventListener('paste', async (e) => {
+  const targetFilesTab = document.getElementById('tab-tabFiles');
+  const userFilesTab = document.getElementById('tab-uTabFiles');
+  const onTargetFiles = targetFilesTab && targetFilesTab.classList.contains('active');
+  const onUserFiles = userFilesTab && userFilesTab.classList.contains('active');
+
+  if (!onTargetFiles && !onUserFiles) return;
+
+  const items = Array.from(e.clipboardData.items);
+  const imageItems = items.filter(item => item.type.startsWith('image/'));
+  if (!imageItems.length) return;
+
+  e.preventDefault();
+
+  if (onTargetFiles) {
+    if (!currentTargetId) { toast(t('select_target_first'), 'err'); return; }
+    const dz = document.getElementById('dropZone');
+    dz.classList.add('drag-over');
+    setTimeout(() => dz.classList.remove('drag-over'), 600);
+
+    const platform = document.getElementById('uploadPlatform').value;
+    const progress = document.getElementById('uploadProgress');
+    const status = document.getElementById('uploadStatus');
+    const fill = document.getElementById('progressFill');
+    progress.classList.remove('hidden');
+
+    for (let i = 0; i < imageItems.length; i++) {
+      const blob = imageItems[i].getAsFile();
+      const ext = blob.type.split('/')[1] || 'png';
+      const filename = `pasted_${Date.now()}_${i + 1}.${ext}`;
+      status.textContent = `Analyzing pasted image ${i + 1}/${imageItems.length}...`;
+      fill.style.width = `${((i) / imageItems.length) * 100}%`;
+      const fd = new FormData();
+      fd.append('platform', platform);
+      fd.append('file', blob, filename);
+      const r = await fetch(`/api/targets/${currentTargetId}/files`, { method: 'POST', body: fd });
+      if (!r.ok) { toast('Image analysis failed', 'err'); }
+    }
+
+    fill.style.width = '100%';
+    status.textContent = `✅ ${imageItems.length} image(s) analyzed!`;
+    setTimeout(() => { progress.classList.add('hidden'); fill.style.width = '0%'; }, 2500);
+    toast(`✅ Pasted ${imageItems.length} image(s) and analyzed`);
+    loadFiles();
+
+  } else {
+    const dz = document.getElementById('uDropZone');
+    dz.classList.add('drag-over');
+    setTimeout(() => dz.classList.remove('drag-over'), 600);
+
+    const platform = document.getElementById('uUploadPlatform').value;
+    const progress = document.getElementById('uUploadProgress');
+    const status = document.getElementById('uUploadStatus');
+    const fill = document.getElementById('uProgressFill');
+    progress.classList.remove('hidden');
+
+    for (let i = 0; i < imageItems.length; i++) {
+      const blob = imageItems[i].getAsFile();
+      const ext = blob.type.split('/')[1] || 'png';
+      const filename = `pasted_${Date.now()}_${i + 1}.${ext}`;
+      status.textContent = `Analyzing pasted image ${i + 1}/${imageItems.length}...`;
+      fill.style.width = `${((i) / imageItems.length) * 100}%`;
+      const fd = new FormData();
+      fd.append('platform', platform);
+      fd.append('file', blob, filename);
+      const r = await fetch('/api/user/files', { method: 'POST', body: fd });
+      if (!r.ok) { toast('Image analysis failed', 'err'); }
+    }
+
+    fill.style.width = '100%';
+    status.textContent = `✅ ${imageItems.length} image(s) analyzed!`;
+    setTimeout(() => { progress.classList.add('hidden'); fill.style.width = '0%'; }, 2500);
+    toast(`✅ Pasted ${imageItems.length} image(s) and analyzed`);
+    loadUserFiles();
+  }
+});
+
+// ─── Personality Analysis ─────────────────────────────────────────────────────
+async function loadAnalysis() {
+  const noTarget = document.getElementById('analysisNoTarget');
+  const content = document.getElementById('analysisContent');
+  if (!currentTargetId) {
+    noTarget.classList.remove('hidden');
+    content.classList.add('hidden');
+    return;
+  }
+  noTarget.classList.add('hidden');
+  content.classList.remove('hidden');
+
+  const t = await api('GET', '/targets/' + currentTargetId);
+  document.getElementById('analysisTargetName').textContent = `Analyzing: ${t.name}`;
+
+  const p = await api('GET', `/targets/${currentTargetId}/personality?lang=${currentLang}`);
+  if (p.name) renderPersonality(p);
+}
+
+async function runAnalysis() {
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('analysisRunning').classList.remove('hidden');
+  document.getElementById('analysisResult').classList.add('hidden');
+
+  try {
+    const { task_id } = await api('POST', '/targets/' + currentTargetId + '/analyze', {lang: currentLang});
+    pollTask(task_id,
+      async () => {
+        document.getElementById('analysisRunning').classList.add('hidden');
+        document.getElementById('analyzeBtn').disabled = false;
+        const p = await api('GET', `/targets/${currentTargetId}/personality?lang=${currentLang}`);
+        renderPersonality(p);
+        toast('✅ Analysis complete!');
+      },
+      (err) => {
+        document.getElementById('analysisRunning').classList.add('hidden');
+        document.getElementById('analyzeBtn').disabled = false;
+        toast('Analysis failed: ' + err, 'err');
+      }
+    );
+  } catch(e) {
+    document.getElementById('analysisRunning').classList.add('hidden');
+    document.getElementById('analyzeBtn').disabled = false;
+    toast(e.message, 'err');
+  }
+}
+
+function renderPersonality(p) {
+  document.getElementById('analysisResult').classList.remove('hidden');
+
+  // Radar chart
+  const labels = [t('label_openness'), t('label_conscientiousness'), t('label_extraversion'), t('label_agreeableness'), t('label_neuroticism')];
+  const values = [p.openness, p.conscientiousness, p.extraversion, p.agreeableness, p.neuroticism];
+  if (radarChartInstance) radarChartInstance.destroy();
+  radarChartInstance = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: 'rgba(255,75,139,0.15)',
+        borderColor: '#ff4b8b',
+        pointBackgroundColor: '#ff4b8b',
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      scales: { r: { min: 0, max: 10, ticks: { color: '#555', stepSize: 2 }, grid: { color: '#2a2a3a' }, pointLabels: { color: '#9090c0', font: { size: 13 } } } },
+      plugins: { legend: { display: false } },
+    }
+  });
+
+  // Big Five cards
+  const traits = [
+    { label: t('label_openness'), val: p.openness, color: '#9b59ff' },
+    { label: t('label_conscientiousness'), val: p.conscientiousness, color: '#3498db' },
+    { label: t('label_extraversion'), val: p.extraversion, color: '#ff4b8b' },
+    { label: t('label_agreeableness'), val: p.agreeableness, color: '#2ecc71' },
+    { label: t('label_neuroticism'), val: p.neuroticism, color: '#e67e22' },
+  ];
+  document.getElementById('bigFiveCards').innerHTML = traits.map(tr => `
+    <div class="metric-card">
+      <div style="font-size:22px;font-weight:700;color:${tr.color}">${tr.val.toFixed(1)}</div>
+      <div class="text-xs text-gray-500 mt-1">${tr.label}</div>
+      <div class="progress-bar mt-2"><div class="progress-fill" style="width:${tr.val*10}%;background:${tr.color}"></div></div>
+    </div>
+  `).join('');
+
+  // Tags
+  document.getElementById('p_interests').innerHTML = (p.true_interests || []).map(i => `<span class="tag">${i}</span>`).join('');
+  document.getElementById('p_values').innerHTML = (p.core_values || []).map(v => `<span class="tag">${v}</span>`).join('');
+  document.getElementById('p_attachment').textContent = p.attachment_style || '';
+  document.getElementById('p_love').textContent = p.love_language || '';
+  document.getElementById('p_comm').textContent = p.communication_style || '';
+  document.getElementById('p_goals').textContent = p.relationship_goals || '';
+  document.getElementById('p_triggers').innerHTML = (p.conflict_triggers || []).map(trig => `<div class="text-xs text-red-400">⚠️ ${trig}</div>`).join('');
+  document.getElementById('p_summary').textContent = p.personality_summary || '';
+  document.getElementById('p_reasoning').textContent = p.analysis_reasoning || '';
+
+  // Deep analysis
+  const da = p.deep_analysis || {};
+  const deepSection = document.getElementById('p_deep_section');
+  if (da.who_they_really_are) {
+    deepSection.classList.remove('hidden');
+    document.getElementById('p_who_they_are').textContent = da.who_they_really_are || '';
+    document.getElementById('p_dating_style').textContent = da.dating_style || '';
+    document.getElementById('p_how_to_impress').innerHTML = (da.how_to_impress || []).map((tip, i) =>
+      `<div class="flex gap-2"><span class="text-green-400 font-bold flex-shrink-0">${i+1}.</span><span>${tip}</span></div>`
+    ).join('');
+    document.getElementById('p_first_date').innerHTML = (da.first_date_ideas || []).map(idea =>
+      `<div class="mb-1">📍 ${idea}</div>`
+    ).join('');
+    document.getElementById('p_signal_decoder').innerHTML = (da.signal_decoder || []).map(s =>
+      `<div class="border-l-2 border-yellow-500 pl-3">
+        <div class="text-xs text-yellow-300 font-medium">📡 ${s.signal}</div>
+        <div class="text-xs text-gray-400 mt-1">→ ${s.meaning}</div>
+      </div>`
+    ).join('');
+    document.getElementById('p_wont_say').textContent = da.what_they_wont_say || '';
+    document.getElementById('p_red_flags').innerHTML = (da.red_flags_to_watch || []).map(flag =>
+      `<div class="mb-1">🚩 ${flag}</div>`
+    ).join('');
+    document.getElementById('p_long_term').textContent = da.long_term_compatibility || '';
+  } else {
+    deepSection.classList.add('hidden');
+  }
+}
+
+// ─── Date Simulation ──────────────────────────────────────────────────────────
+async function loadSimulatePage() {
+  const noTarget = document.getElementById('simNoTarget');
+  const content = document.getElementById('simContent');
+  if (!currentTargetId) {
+    noTarget.classList.remove('hidden');
+    content.classList.add('hidden');
+    return;
+  }
+
+  const p = await api('GET', `/targets/${currentTargetId}/personality?lang=${currentLang}`);
+  if (!p.name) {
+    noTarget.textContent = 'Please complete personality analysis first';
+    noTarget.classList.remove('hidden');
+    content.classList.add('hidden');
+    return;
+  }
+
+  noTarget.classList.add('hidden');
+  content.classList.remove('hidden');
+
+  const sessions = await api('GET', '/targets/' + currentTargetId + '/sessions?lang=' + currentLang);
+  const dateNum = sessions.length + 1;
+  document.getElementById('simDateLabel').textContent = t('sim_date_label')(dateNum);
+
+  const lastInfo = document.getElementById('simLastDate');
+  if (sessions.length > 0) {
+    const last = sessions[sessions.length - 1];
+    lastInfo.classList.remove('hidden');
+    lastInfo.textContent = t('sim_last_date')(last.date_number, last.chemistry_score.toFixed(1), last.her_interest_level.toFixed(1));
+  } else {
+    lastInfo.classList.add('hidden');
+  }
+}
+
+async function startSimulation() {
+  const location = document.getElementById('sim_location').value.trim();
+  const activity = document.getElementById('sim_activity').value.trim();
+  if (!location || !activity) { toast('Please fill in location and activity', 'err'); return; }
+
+  document.getElementById('simForm').classList.add('hidden');
+  document.getElementById('simResults').classList.add('hidden');
+  document.getElementById('simRunning').classList.remove('hidden');
+  document.getElementById('simProgress').textContent = 'Simulating...';
+  document.getElementById('simConversation').innerHTML = '';
+  convMessages = [];
+
+  const body = {
+    location,
+    activity,
+    special_mode: document.getElementById('sim_mode').value,
+    num_exchanges: parseInt(document.getElementById('sim_exchanges').value) || 10,
+    lang: currentLang,
+  };
+
+  try {
+    const { task_id } = await api('POST', '/targets/' + currentTargetId + '/simulate', body);
+    currentTaskId = task_id;
+    let lastConvLen = 0;
+
+    simPollInterval = setInterval(async () => {
+      const task = await api('GET', '/tasks/' + task_id);
+
+      // Show new conversation messages as they come in
+      const conv = task.conversation || [];
+      if (conv.length > lastConvLen) {
+        const her = (await api('GET', '/targets/' + currentTargetId)).name;
+        for (let i = lastConvLen; i < conv.length; i++) {
+          appendConvMessage(conv[i].speaker, conv[i].text, conv[i].speaker === her);
+        }
+        lastConvLen = conv.length;
+        document.getElementById('simProgress').textContent = `Simulating... ${conv.length} messages`;
+      }
+
+      if (task.status === 'done') {
+        clearInterval(simPollInterval);
+        document.getElementById('simRunning').classList.add('hidden');
+        renderSimResult(task.result);
+      } else if (task.status === 'error') {
+        clearInterval(simPollInterval);
+        document.getElementById('simRunning').classList.add('hidden');
+        document.getElementById('simForm').classList.remove('hidden');
+        toast('Simulation failed: ' + task.error, 'err');
+      }
+    }, 2000);
+
+  } catch(e) {
+    document.getElementById('simRunning').classList.add('hidden');
+    document.getElementById('simForm').classList.remove('hidden');
+    toast(e.message, 'err');
+  }
+}
+
+function appendConvMessage(speaker, text, isHer) {
+  const container = document.getElementById('simConversation');
+  const div = document.createElement('div');
+  div.className = isHer ? 'chat-bubble-her' : 'chat-bubble-user';
+  div.innerHTML = `<div class="text-xs font-semibold mb-1" style="color:${isHer ? '#ff4b8b' : '#4ade80'}">${speaker}</div><div class="text-sm text-gray-200 leading-relaxed">${text}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function renderSimResult(r) {
+  document.getElementById('simResults').classList.remove('hidden');
+
+  // Scores
+  const scoreColor = v => v >= 7 ? '#4ade80' : v >= 5 ? '#facc15' : '#f87171';
+  document.getElementById('r_chemistry').textContent = r.chemistry_score.toFixed(1) + '/10';
+  document.getElementById('r_chemistry').style.color = scoreColor(r.chemistry_score);
+  document.getElementById('r_interest').textContent = r.her_interest_level.toFixed(1) + '/10';
+  document.getElementById('r_interest').style.color = scoreColor(r.her_interest_level);
+  document.getElementById('r_perf').textContent = r.your_performance_score.toFixed(1) + '/10';
+  document.getElementById('r_perf').style.color = scoreColor(r.your_performance_score);
+  document.getElementById('r_next').textContent = (r.next_date_probability * 100).toFixed(0) + '%';
+  document.getElementById('r_next').style.color = scoreColor(r.next_date_probability * 10);
+
+  // Basic fields
+  document.getElementById('r_summary').textContent = r.summary;
+  document.getElementById('r_best').innerHTML = (r.best_moments || []).map(m => `<div class="mb-1">✨ ${m}</div>`).join('');
+  document.getElementById('r_awkward').innerHTML = (r.awkward_moments || []).map(m => `<div class="mb-1">😬 ${m}</div>`).join('');
+  document.getElementById('r_feedback').textContent = r.her_feedback;
+  document.getElementById('r_advice').innerHTML = (r.advice_for_next_time || []).map((t,i) =>
+    `<div class="flex gap-2 mb-1"><span class="text-blue-400 font-bold flex-shrink-0">${i+1}.</span><span>${t}</span></div>`
+  ).join('');
+
+  // Deep report
+  const d = r.deep_report || {};
+  document.getElementById('r_narrative').textContent = d.narrative || '';
+  document.getElementById('r_turning_points').innerHTML = (d.turning_points || []).map(tp =>
+    `<div class="border-l-2 border-yellow-500 pl-3 mb-2">
+      <div class="text-sm text-yellow-300 font-medium">${tp.moment}</div>
+      <div class="text-xs text-gray-400 mt-1">${tp.impact}</div>
+    </div>`
+  ).join('');
+  document.getElementById('r_her_psychology').textContent = d.her_psychology || '';
+  document.getElementById('r_compatibility').textContent = d.compatibility_analysis || '';
+  document.getElementById('r_friends').textContent = d.what_she_told_friends || '';
+  document.getElementById('r_momentum').textContent = d.momentum || '';
+  document.getElementById('r_next_suggestion').textContent = d.next_date_suggestion || '';
+
+  // Re-apply all translations after results become visible
+  applyTranslations();
+
+  toast('✅ Date simulation complete!');
+}
+
+function resetSimulation() {
+  document.getElementById('simResults').classList.add('hidden');
+  document.getElementById('compatReport').classList.add('hidden');
+  const mode = document.getElementById('simForm').classList.contains('hidden') ? 'auto' : 'manual';
+  document.getElementById('sim_location').value = '';
+  document.getElementById('sim_activity').value = '';
+  if (mode === 'auto') {
+    document.getElementById('simAutoPanel').classList.remove('hidden');
+    document.getElementById('autoScenarioPreview').classList.add('hidden');
+    document.getElementById('autoSimBtn').disabled = false;
+    document.getElementById('autoSimBtn').innerHTML = `🤖 <span id="lbl_auto_btn">${t('lbl_auto_btn')}</span>`;
+  } else {
+    document.getElementById('simForm').classList.remove('hidden');
+  }
+  loadSimulatePage();
+}
+
+let currentSimMode = 'manual';
+function setSimMode(mode) {
+  currentSimMode = mode;
+  document.getElementById('simForm').classList.toggle('hidden', mode === 'auto');
+  document.getElementById('simAutoPanel').classList.toggle('hidden', mode === 'manual');
+  document.getElementById('simModeManual').className = mode === 'manual' ? 'btn-primary text-sm' : 'btn-secondary text-sm';
+  document.getElementById('simModeAuto').className = mode === 'auto' ? 'btn-primary text-sm' : 'btn-secondary text-sm';
+}
+
+async function startAutoSimulation() {
+  const btn = document.getElementById('autoSimBtn');
+  btn.disabled = true;
+  btn.textContent = t('auto_generating');
+
+  document.getElementById('simResults').classList.add('hidden');
+  document.getElementById('compatReport').classList.add('hidden');
+  document.getElementById('simProgress').textContent = t('auto_generating');
+  document.getElementById('simRunning').classList.remove('hidden');
+  document.getElementById('simConversation').innerHTML = '';
+  convMessages = [];
+
+  try {
+    const { task_id } = await api('POST', '/targets/' + currentTargetId + '/auto-simulate', {
+      num_exchanges: 10,
+      lang: currentLang,
+    });
+    currentTaskId = task_id;
+    let lastConvLen = 0;
+
+    simPollInterval = setInterval(async () => {
+      const task = await api('GET', '/tasks/' + task_id);
+
+      // Show scenario as soon as available
+      if (task.scenario && !document.getElementById('autoScenarioPreview').classList.contains('shown')) {
+        document.getElementById('autoScenarioText').textContent =
+          `📍 ${task.scenario.location}  ·  🎯 ${task.scenario.activity}`;
+        document.getElementById('autoScenarioPreview').classList.remove('hidden');
+        document.getElementById('autoScenarioPreview').classList.add('shown');
+      }
+
+      const conv = task.conversation || [];
+      if (conv.length > lastConvLen) {
+        const her = (await api('GET', '/targets/' + currentTargetId)).name;
+        for (let i = lastConvLen; i < conv.length; i++) {
+          appendConvMessage(conv[i].speaker, conv[i].text, conv[i].speaker === her);
+        }
+        lastConvLen = conv.length;
+        document.getElementById('simProgress').textContent = `${t('auto_generating')} ${conv.length}...`;
+      }
+
+      if (task.status === 'done') {
+        clearInterval(simPollInterval);
+        document.getElementById('simRunning').classList.add('hidden');
+        document.getElementById('simAutoPanel').classList.remove('hidden');
+        lastAutoSessionId = task.result.session_id || null;
+        renderSimResult(task.result);
+        document.getElementById('btnCompatReport').classList.remove('hidden');
+      } else if (task.status === 'error') {
+        clearInterval(simPollInterval);
+        document.getElementById('simRunning').classList.add('hidden');
+        document.getElementById('simAutoPanel').classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = `🤖 <span>${t('lbl_auto_btn')}</span>`;
+        toast('Simulation failed: ' + task.error, 'err');
+      }
+    }, 2000);
+
+  } catch(e) {
+    document.getElementById('simRunning').classList.add('hidden');
+    document.getElementById('simAutoPanel').classList.remove('hidden');
+    btn.disabled = false;
+    btn.innerHTML = `🤖 <span>${t('lbl_auto_btn')}</span>`;
+    toast(e.message, 'err');
+  }
+}
+
+async function showCompatibilityReport() {
+  const report = document.getElementById('compatReport');
+  report.classList.remove('hidden');
+  report.scrollIntoView({ behavior: 'smooth' });
+
+  // Re-apply all current-language translations to the simulate result/compat area
+  applyTranslations();
+
+  // Reset decision area
+  document.getElementById('compatDecision').classList.remove('hidden');
+  document.getElementById('compatDecisionResult').classList.add('hidden');
+
+  // Show loading state
+  document.getElementById('compatVerdict').textContent = t('compat_loading');
+  document.getElementById('compatScoreCircle').textContent = '...';
+  document.getElementById('compatPros').innerHTML = '';
+  document.getElementById('compatCons').innerHTML = '';
+  document.getElementById('compatPrediction').textContent = '';
+  document.getElementById('compatRecommendation').textContent = '';
+
+  try {
+    const data = await api('POST', `/targets/${currentTargetId}/compatibility?lang=${currentLang}`);
+    const score = data.compatibility_score || 0;
+    const circle = document.getElementById('compatScoreCircle');
+    circle.textContent = score.toFixed(1);
+    circle.style.color = score >= 7 ? '#4ade80' : score >= 5 ? '#facc15' : '#f87171';
+    circle.style.borderColor = score >= 7 ? '#4ade80' : score >= 5 ? '#facc15' : '#f87171';
+
+    document.getElementById('compatVerdict').textContent = data.verdict || '';
+    document.getElementById('compatPros').innerHTML = (data.why_compatible || []).map(p => `<div class="mb-1">✅ ${p}</div>`).join('');
+    document.getElementById('compatCons').innerHTML = (data.potential_issues || []).map(c => `<div class="mb-1">⚠️ ${c}</div>`).join('');
+    document.getElementById('compatPrediction').textContent = data.prediction || '';
+    document.getElementById('compatRecommendation').textContent = data.recommendation || '';
+
+    // Pre-style decision buttons based on recommendation
+    if (data.should_ask_out) {
+      document.getElementById('btnGoDate').style.background = 'linear-gradient(135deg, #ff4b8b, #e040fb)';
+    }
+
+    // Auto-save compat report to the session
+    if (lastAutoSessionId) {
+      api('PUT', `/sessions/${lastAutoSessionId}/compat`, { compat_report: data }).catch(() => {});
+    }
+  } catch(e) {
+    document.getElementById('compatVerdict').textContent = e.message;
+  }
+}
+
+function onDateDecision(goForIt) {
+  document.getElementById('compatDecision').classList.add('hidden');
+  const result = document.getElementById('compatDecisionResult');
+  result.classList.remove('hidden');
+  document.getElementById('compatDecisionText').textContent = goForIt ? t('compat_yes_text') : t('compat_no_text');
+  document.getElementById('compatDecisionDesc').textContent = goForIt ? t('compat_yes_desc') : t('compat_no_desc');
+  result.scrollIntoView({ behavior: 'smooth' });
+
+  // Save decision to the session
+  if (lastAutoSessionId) {
+    api('PUT', `/sessions/${lastAutoSessionId}/compat`, {
+      compat_report: {}, decision: goForIt ? 'yes' : 'no'
+    }).catch(() => {});
+  }
+}
+
+// ─── Auto Archive ─────────────────────────────────────────────────────────────
+
+async function loadAutoArchive() {
+  const noTarget = document.getElementById('autoArchiveNoTarget');
+  const list = document.getElementById('autoArchiveList');
+  list.innerHTML = '';
+
+  if (!currentTargetId) {
+    noTarget.textContent = t('archive_no_target');
+    noTarget.classList.remove('hidden');
+    return;
+  }
+  noTarget.classList.add('hidden');
+
+  const sessions = await api('GET', `/targets/${currentTargetId}/auto-sessions?lang=${currentLang}`);
+  if (!sessions.length) {
+    list.innerHTML = `<div class="card p-6 text-center text-gray-500">${t('archive_empty')}</div>`;
+    return;
+  }
+
+  const scoreColor = v => v >= 7 ? '#4ade80' : v >= 5 ? '#facc15' : '#f87171';
+  const pct = v => Math.round(v * 100);
+
+  list.innerHTML = sessions.map(s => {
+    const cr = s.compat_report;
+    const cscore = cr ? cr.compatibility_score : null;
+    const decisionBadge = s.compat_decision === 'yes'
+      ? `<span class="text-xs px-2 py-1 rounded-full" style="background:#ff4b8b22;color:#ff4b8b;border:1px solid #ff4b8b44">${t('archive_decision_yes')}</span>`
+      : s.compat_decision === 'no'
+        ? `<span class="text-xs px-2 py-1 rounded-full" style="background:#33333a;color:#888">${t('archive_decision_no')}</span>`
+        : '';
+
+    const compatSection = cr
+      ? `<div class="mt-3 pt-3 border-t border-gray-700">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="text-2xl font-bold" style="color:${scoreColor(cscore)}">${cscore?.toFixed(1)}</div>
+            <div class="text-xs text-gray-400">${t('archive_compat_score')}</div>
+            ${decisionBadge}
+          </div>
+          <p class="text-xs text-gray-400 italic leading-relaxed">${cr.verdict || ''}</p>
+          ${cr.why_compatible?.length ? `<div class="mt-2 text-xs text-green-400">${cr.why_compatible.slice(0,2).map(p=>`✅ ${p}`).join('<br>')}</div>` : ''}
+          ${cr.potential_issues?.length ? `<div class="mt-1 text-xs text-yellow-500">${cr.potential_issues.slice(0,1).map(c=>`⚠️ ${c}`).join('<br>')}</div>` : ''}
+        </div>`
+      : `<div class="mt-3 pt-3 border-t border-gray-700 text-xs text-gray-600">${t('archive_no_compat')}</div>`;
+
+    const dateStr = s.created_at ? s.created_at.slice(0, 10) : '';
+
+    return `<div class="card p-5" style="border-color:#9b59ff33">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <div class="font-semibold text-purple-300">${t('archive_date_label')(s.date_number)}</div>
+          <div class="text-xs text-gray-500 mt-0.5">${dateStr}</div>
+        </div>
+        <div class="text-xs text-gray-500 text-right">
+          <div>📍 ${s.location}</div>
+          <div>🎯 ${s.activity}</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <div class="text-center"><div class="text-lg font-bold" style="color:${scoreColor(s.chemistry_score)}">${s.chemistry_score?.toFixed(1)}</div><div class="text-xs text-gray-500">${t('hist_chem_short')}</div></div>
+        <div class="text-center"><div class="text-lg font-bold" style="color:${scoreColor(s.her_interest_level)}">${s.her_interest_level?.toFixed(1)}</div><div class="text-xs text-gray-500">${t('hist_int_short')}</div></div>
+        <div class="text-center"><div class="text-lg font-bold" style="color:${scoreColor(s.your_performance_score)}">${s.your_performance_score?.toFixed(1)}</div><div class="text-xs text-gray-500">${t('hist_perf_short')}</div></div>
+        <div class="text-center"><div class="text-lg font-bold" style="color:${scoreColor(s.next_date_probability * 10)}">${pct(s.next_date_probability)}%</div><div class="text-xs text-gray-500">${t('hist_prob_short')}</div></div>
+      </div>
+
+      <p class="text-sm text-gray-400 leading-relaxed italic">${s.summary || ''}</p>
+      ${compatSection}
+    </div>`;
+  }).join('');
+}
+
+// ─── History ──────────────────────────────────────────────────────────────────
+let compareChartInstance = null;
+
+function switchHistoryTab(tabId) {
+  const histPage = document.getElementById('page-history');
+  histPage.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  histPage.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+  if (tabId === 'hTabAll') loadCompare();
+  if (tabId === 'hTabDetail') loadHistoryDetail();
+  if (tabId === 'hTabAuto') loadAutoArchive();
+}
+
+async function loadHistory() {
+  const allActive = document.getElementById('hTabAll').classList.contains('active');
+  const autoActive = document.getElementById('hTabAuto').classList.contains('active');
+  if (allActive) loadCompare();
+  else if (autoActive) loadAutoArchive();
+  else loadHistoryDetail();
+}
+
+// ── Tab: All Comparisons ──────────────────────────────────────────────────────
+async function loadCompare() {
+  const [summary, allSessions] = await Promise.all([
+    api('GET', '/targets/summary'),
+    api('GET', '/sessions/all?lang=' + currentLang),
+  ]);
+
+  const withSessions = summary.filter(tgt => tgt.session_count > 0);
+  document.getElementById('compareEmpty').classList.toggle('hidden', allSessions.length > 0);
+
+  // ── Summary cards ────────────────────────────────────────────────────────────
+  const scoreColor = v => v >= 7 ? '#2ecc71' : v >= 5 ? '#ff8c00' : '#ff4b8b';
+  document.getElementById('summaryCards').innerHTML = summary.map(tgt => {
+    const hasData = tgt.session_count > 0;
+    return `
+    <div class="card p-5 cursor-pointer hover:border-purple-500 transition-colors"
+         onclick="jumpToTarget(${tgt.id})">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <div class="font-semibold text-base">${tgt.name}
+            <span class="text-gray-500 text-sm ml-1">${tgt.age || '?'}${t('years_old')}</span>
+          </div>
+          <div class="text-xs text-gray-600 mt-0.5">${hasData ? t('hist_sessions_count')(tgt.session_count, (tgt.last_date||'').slice(0,10)) : t('hist_not_simulated')}</div>
+        </div>
+        ${hasData ? `<div class="text-2xl font-bold" style="color:${scoreColor(tgt.avg_chemistry)}">${tgt.avg_chemistry?.toFixed(1)}</div>` : '<div class="text-gray-700 text-sm">—</div>'}
+      </div>
+      ${hasData ? `
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div><div class="text-sm font-semibold" style="color:#ff4b8b">${tgt.avg_chemistry?.toFixed(1)}</div><div class="text-xs text-gray-600">${t('hist_avg_chem')}</div></div>
+        <div><div class="text-sm font-semibold" style="color:#ff8c00">${tgt.avg_interest?.toFixed(1)}</div><div class="text-xs text-gray-600">${t('hist_avg_int')}</div></div>
+        <div><div class="text-sm font-semibold" style="color:#4b8bff">${tgt.avg_performance?.toFixed(1)}</div><div class="text-xs text-gray-600">${t('hist_avg_perf')}</div></div>
+      </div>
+      <div class="mt-2">
+        <div class="text-xs text-gray-600 mb-1">${t('hist_progress')}</div>
+        <div class="w-full rounded-full h-1.5" style="background:#1a1a2e">
+          <div class="h-1.5 rounded-full" style="width:${((tgt.best_probability||0)*100).toFixed(0)}%;background:linear-gradient(90deg,#9b59ff,#ff4b8b)"></div>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  // ── Bar chart (only targets with data) ───────────────────────────────────────
+  const chartWrap = document.getElementById('compareChartWrap');
+  if (withSessions.length) {
+    chartWrap.classList.remove('hidden');
+    if (compareChartInstance) compareChartInstance.destroy();
+    compareChartInstance = new Chart(document.getElementById('compareChart'), {
+      type: 'bar',
+      data: {
+        labels: withSessions.map(tgt => tgt.name),
+        datasets: [
+          { label: t('hist_chart_chem'), data: withSessions.map(tgt => tgt.avg_chemistry), backgroundColor: '#ff4b8b88', borderColor: '#ff4b8b', borderWidth: 1 },
+          { label: t('hist_chart_int'),  data: withSessions.map(tgt => tgt.avg_interest),  backgroundColor: '#ff8c0088', borderColor: '#ff8c00', borderWidth: 1 },
+          { label: t('hist_chart_perf'), data: withSessions.map(tgt => tgt.avg_performance),backgroundColor: '#4b8bff88', borderColor: '#4b8bff', borderWidth: 1 },
+        ]
+      },
+      options: {
+        scales: { y: { min: 0, max: 10, grid: { color: '#2a2a3a' }, ticks: { color: '#555' } }, x: { grid: { color: '#2a2a3a' }, ticks: { color: '#777' } } },
+        plugins: { legend: { labels: { color: '#7070a0', boxWidth: 10, font: { size: 11 } } } },
+      }
+    });
+  } else {
+    chartWrap.classList.add('hidden');
+  }
+
+  // ── All sessions timeline ─────────────────────────────────────────────────────
+  document.getElementById('allSessionsList').innerHTML = allSessions.length
+    ? allSessions.map(s => `
+      <div class="card p-4 flex items-start gap-4 cursor-pointer hover:border-purple-500 transition-colors"
+           onclick="jumpToTarget(${s.target_id})">
+        <div class="flex-shrink-0 text-center" style="min-width:52px">
+          <div class="text-xs text-gray-500">${s.created_at.slice(0,10)}</div>
+          <div class="text-xs font-medium text-purple-400 mt-0.5">${s.target_name}</div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-sm font-semibold">${s.date_number === 999 ? t('hist_married_short') : t('hist_date_n_short')(s.date_number)}</span>
+            <span class="text-xs text-gray-500">${s.location}</span>
+          </div>
+          <p class="text-xs text-gray-400 line-clamp-2">${s.summary}</p>
+        </div>
+        <div class="flex-shrink-0 grid grid-cols-2 gap-x-3 gap-y-0.5 text-right text-xs">
+          <span style="color:#ff4b8b">${s.chemistry_score?.toFixed(1)}</span><span class="text-gray-600">${t('hist_chem_short')}</span>
+          <span style="color:#ff8c00">${s.her_interest_level?.toFixed(1)}</span><span class="text-gray-600">${t('hist_int_short')}</span>
+          <span style="color:#4b8bff">${s.your_performance_score?.toFixed(1)}</span><span class="text-gray-600">${t('hist_perf_short')}</span>
+          <span style="color:#2ecc71">${((s.next_date_probability||0)*100).toFixed(0)}%</span><span class="text-gray-600">${t('hist_prob_short')}</span>
+        </div>
+      </div>`)
+      .join('')
+    : `<div class="text-gray-600 text-sm">${t('hist_no_sessions')}</div>`;
+}
+
+function jumpToTarget(targetId) {
+  currentTargetId = targetId;
+  document.getElementById('targetSelect').value = targetId;
+  // Switch to detail tab
+  switchHistoryTab('hTabDetail');
+}
+
+// ── Tab: Detailed Records ─────────────────────────────────────────────────────
+async function loadHistoryDetail() {
+  const noTarget = document.getElementById('historyNoTarget');
+  const content = document.getElementById('historyContent');
+  if (!currentTargetId) {
+    noTarget.classList.remove('hidden');
+    content.classList.add('hidden');
+    return;
+  }
+  noTarget.classList.add('hidden');
+  content.classList.remove('hidden');
+
+  const sessions = await api('GET', '/targets/' + currentTargetId + '/sessions?lang=' + currentLang);
+  if (!sessions.length) {
+    document.getElementById('historyList').innerHTML = `<div class="card p-4 text-gray-500 text-sm">${t('hist_no_target')}</div>`;
+    return;
+  }
+
+  // Trend chart
+  if (trendChartInstance) trendChartInstance.destroy();
+  trendChartInstance = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: sessions.map(s => s.date_number === 999 ? t('hist_married_short') : t('hist_date_n_short')(s.date_number)),
+      datasets: [
+        { label: t('hist_trend_chem'), data: sessions.map(s => s.chemistry_score), borderColor: '#ff4b8b', tension: 0.4, pointRadius: 4 },
+        { label: t('hist_trend_int'), data: sessions.map(s => s.her_interest_level), borderColor: '#ff8c00', tension: 0.4, pointRadius: 4 },
+        { label: t('hist_trend_perf'), data: sessions.map(s => s.your_performance_score), borderColor: '#4b8bff', tension: 0.4, pointRadius: 4 },
+      ]
+    },
+    options: {
+      scales: { y: { min: 0, max: 10, grid: { color: '#2a2a3a' }, ticks: { color: '#555' } }, x: { grid: { color: '#2a2a3a' }, ticks: { color: '#555' } } },
+      plugins: { legend: { labels: { color: '#7070a0', boxWidth: 12 } } },
+    }
+  });
+
+  // Session list
+  document.getElementById('historyList').innerHTML = [...sessions].reverse().map(s => `
+    <div class="card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="font-semibold">${s.date_number === 999 ? t('hist_married') : t('hist_date_n')(s.date_number)}
+          <span class="text-gray-500 text-sm ml-2">${s.location}</span>
+        </div>
+        <div class="text-xs text-gray-600">${s.created_at.slice(0,10)}</div>
+      </div>
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <div class="metric-card py-2"><div style="font-size:18px;font-weight:700;color:#ff4b8b">${s.chemistry_score.toFixed(1)}</div><div class="text-xs text-gray-500">${t('hist_chem_label')}</div></div>
+        <div class="metric-card py-2"><div style="font-size:18px;font-weight:700;color:#ff8c00">${s.her_interest_level.toFixed(1)}</div><div class="text-xs text-gray-500">${t('hist_int_label')}</div></div>
+        <div class="metric-card py-2"><div style="font-size:18px;font-weight:700;color:#4b8bff">${s.your_performance_score.toFixed(1)}</div><div class="text-xs text-gray-500">${t('hist_perf_label')}</div></div>
+        <div class="metric-card py-2"><div style="font-size:18px;font-weight:700;color:#2ecc71">${(s.next_date_probability*100).toFixed(0)}%</div><div class="text-xs text-gray-500">${t('hist_next_prob') || t('hist_prob_short')}</div></div>
+      </div>
+      <p class="text-sm text-gray-400 mb-2">${s.summary}</p>
+      ${s.her_feedback ? `<div class="text-xs italic text-gray-500 mt-2">💭 ${s.her_feedback}</div>` : ''}
+      ${s.advice_for_next_time?.length ? `
+        <details class="mt-2">
+          <summary class="text-xs text-blue-400 cursor-pointer">${t('hist_advice')}</summary>
+          <ul class="mt-2 space-y-1">${s.advice_for_next_time.map(a => `<li class="text-xs text-gray-400">• ${a}</li>`).join('')}</ul>
+        </details>` : ''}
+      ${s.full_conversation ? `
+        <details class="mt-2">
+          <summary class="text-xs text-gray-600 cursor-pointer">${t('hist_full_conv')}</summary>
+          <div class="mt-2 text-xs text-gray-500 whitespace-pre-wrap font-mono bg-black bg-opacity-30 p-3 rounded-lg max-h-64 overflow-y-auto">${s.full_conversation}</div>
+        </details>` : ''}
+    </div>
+  `).join('');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  applyTranslations();
+  await loadUserProfile();
+  await loadTargetSelector();
+}
+
+init();
+</script>
+</body>
+</html>

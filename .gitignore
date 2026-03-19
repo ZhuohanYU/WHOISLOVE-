@@ -1,0 +1,29 @@
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Data & uploads (user data, not for sharing)
+data/whoislove.db
+data/uploads/
+
+# Claude Code local settings
+.claude/
+
+# IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log

@@ -1,0 +1,132 @@
+[
+  {
+    "id": 2,
+    "name": "程远",
+    "age": 30,
+    "instagram_bio": "architect | running | 🏙️ → 🏔️",
+    "instagram_posts_description": "发跑步数据截图、建筑项目进展、偶尔发读书笔记。风格克制，很少发自拍。最近在参加一个 100 天画图挑战。",
+    "linkedin_info": "建筑师，在某知名事务所工作 4 年，参与过多个城市公共空间项目。毕业于同济建筑学院。",
+    "facebook_info": "",
+    "photo_description": "男生，身材不错，穿衣风格偏运动休闲。照片多在户外，阳光下的状态很好。",
+    "dating_app_bio": "建筑师，热衷长跑，最近在学习水彩。周末要么在山里要么在图书馆，欢迎把你的书单发给我。如果你愿意，可以一起去看一场我参与设计的展览。",
+    "additional_notes": "朋友评价他：靠谱、有想法、但有时候工作太忙会失联。感情上受过伤，现在比较谨慎。",
+    "created_at": "2026-03-14T17:00:31.895844",
+    "updated_at": "2026-03-14T17:00:31.895844",
+    "_files": [],
+    "_personality": {
+      "openness": 8.1,
+      "conscientiousness": 8.4,
+      "extraversion": 5.2,
+      "agreeableness": 6.8,
+      "neuroticism": 4.1,
+      "attachment_style": "secure-avoidant",
+      "true_interests": [
+        "建筑与空间",
+        "长跑",
+        "城市研究",
+        "水彩",
+        "纪录片"
+      ],
+      "core_values": [
+        "专注",
+        "成长",
+        "自律",
+        "真诚"
+      ],
+      "communication_style": "直接、理性，逻辑清晰，不太会说软话，但行动力强",
+      "relationship_goals": "找一个有自己生活重心的人，不需要时刻腻在一起，但出现的时候要全情投入",
+      "conflict_triggers": [
+        "依赖性太强",
+        "无意义的争吵",
+        "不守时",
+        "缺乏自我成长动力"
+      ],
+      "love_language": "acts of service + quality time",
+      "personality_summary": "程远是高自律、高目标感的人。他的生活安排得很满——工作、跑步、学画——这不是逃避，而是他需要充实感才有安全感。在感情里，他欣赏独立的人，会被有自己世界的伴侣吸引。他不擅长「甜言蜜语」，但会用行动表达在乎。",
+      "analysis_reasoning": "LinkedIn + Instagram 综合：高 conscientiousness 体现在坚持跑步（记录详细）和 100 天挑战；建筑专业背景+公共空间方向暗示他对「人与空间的关系」有深度思考，是真正的 openness 而非表面；bio 里「有自己的事情做」的隐含期待暗示过去可能经历过依赖性太强的关系。"
+    },
+    "_sessions": []
+  },
+  {
+    "id": 1,
+    "name": "林晓",
+    "age": 26,
+    "instagram_bio": "设计师 / 猫奴 / 在寻找下一个咖啡馆 ☕",
+    "instagram_posts_description": "ins 风格清新，多为生活方式类内容：手冲咖啡、文具控、猫咪、偶尔发设计作品。构图认真，调色偏低饱和暖色。最近在发「30天一本书」挑战。",
+    "linkedin_info": "",
+    "facebook_info": "",
+    "photo_description": "长发，穿着简约有品位，偏日系。照片里常常在看书或者发呆，很少正面对镜头笑。",
+    "dating_app_bio": "UI 设计师，周末时间属于咖啡馆和猫。不喜欢去太吵的地方，但也不讨厌偶尔去看 live。如果你推荐的书我没看过，我会记着的。",
+    "additional_notes": "朋友说她是那种越了解越有意思的人，第一印象可能会觉得有点冷淡。",
+    "created_at": "2026-03-14T17:00:31.894171",
+    "updated_at": "2026-03-14T17:00:31.894171",
+    "_files": [],
+    "_personality": {
+      "openness": 7.8,
+      "conscientiousness": 6.5,
+      "extraversion": 3.9,
+      "agreeableness": 7.2,
+      "neuroticism": 5.4,
+      "attachment_style": "anxious-secure",
+      "true_interests": [
+        "设计美学",
+        "文学",
+        "猫",
+        "独立咖啡",
+        "手账"
+      ],
+      "core_values": [
+        "真实",
+        "细腻",
+        "品质感",
+        "慢生活"
+      ],
+      "communication_style": "内敛但思考深入，喜欢书面表达，当面说话反而容易紧张，熟悉之后话多起来",
+      "relationship_goals": "寻找精神上契合的伴侣，不需要每天黏在一起，但要真正懂她",
+      "conflict_triggers": [
+        "被催促",
+        "表面敷衍",
+        "过于喧闹的环境",
+        "打断她说话"
+      ],
+      "love_language": "quality time + words of affirmation",
+      "personality_summary": "林晓是典型的内倾高开放型人格。表面安静，内心丰富。她对美有高度敏感，生活细节讲究。在感情上需要被真正「看见」，而不是被讨好。她会通过一个人对书、咖啡、设计的品味来判断对方是否值得深交。",
+      "analysis_reasoning": "基于 Instagram 内容分析：高频出现的主题（设计/书/猫/咖啡）都指向高开放性+内倾倾向；bio 里「在寻找」的表达暗示她对当前生活有一定不满足感，属于有安全感但略带焦虑的依恋类型。"
+    },
+    "_sessions": [
+      {
+        "id": 1,
+        "target_id": 1,
+        "date_number": 1,
+        "location": "她推荐的独立咖啡馆「字母城」",
+        "activity": "下午茶，聊最近在看的书",
+        "chemistry_score": 6.2,
+        "her_interest_level": 5.8,
+        "your_performance_score": 6.5,
+        "next_date_probability": 0.62,
+        "summary": "第一次见面有些拘谨，但聊到设计和咖啡之后氛围好了很多。她对 Alex 推荐的播客很感兴趣，要了链接。结束时她说「下次可以去我最近发现的另一家」，算是明显的好信号。",
+        "conversation_highlights": [
+          "Alex 提到对「less is more」设计哲学的看法，她立刻来了精神",
+          "她分享了一本冷门设计师的书，Alex 没听过但表现出真实的好奇",
+          "聊到猫的时候她手机里的照片翻了好久"
+        ],
+        "awkward_moments": [
+          "开场前 10 分钟都在聊天气和交通，有点尴尬",
+          "Alex 问她喜欢什么音乐，她沉默了几秒不知道怎么回答"
+        ],
+        "best_moments": [
+          "她主动问「你觉得设计应该服务功能还是服务情绪」，证明她开始认真对话了",
+          "临走时她说「比我预期的有意思」"
+        ],
+        "her_feedback": "这个人好像真的在听我说话，不是在等着轮到自己说。但还需要再了解一下。",
+        "advice_for_next_time": [
+          "不要一开场就问「你平时喜欢做什么」这种大而空的问题",
+          "可以带一样小东西——比如她提到的书的作者的另一本",
+          "下次去她推荐的地方，让她做主导"
+        ],
+        "full_conversation": "[Alex]: 你平时在这个咖啡馆来得多吗？\n[林晓]: 还好，大概一周一次。你呢，第一次来？\n[Alex]: 是的，你推荐的，我查了一下评论，好像评价都不错。\n[林晓]: 评论其实不太准，这里的手冲比较慢，很多人没耐心等。\n[Alex]: 那我来对地方了，我就是喜欢那种慢一点的地方。你最近在看什么书？\n[林晓]: 《设计中的设计》，原研哉的，你看过吗？\n[Alex]: 名字听过，没看过。他是做什么方向的？\n[林晓]: 无印良品的设计师，做的是「再设计」——把日常物品重新思考。你对设计有研究？\n[Alex]: 谈不上研究，就是做产品的时候会想很多，功能和体验之间怎么平衡……",
+        "created_at": "2026-03-14T17:00:31.895470"
+      }
+    ]
+  }
+]
