@@ -232,9 +232,11 @@
           <h3 id="lbl_sp_values" class="text-sm font-semibold text-purple-400 mt-4 mb-3">Core Values</h3>
           <div id="sp_values" class="flex flex-wrap gap-1"></div>
           <div class="mt-4 space-y-2 text-sm">
+            <div id="sp_mbti_row"><span class="text-gray-500">MBTI: </span><span id="sp_mbti" class="badge-blue ml-1"></span></div>
             <div><span id="lbl_sp_attachment" class="text-gray-500">Attachment: </span><span id="sp_attachment" class="badge-pink ml-1"></span></div>
             <div><span id="lbl_sp_love" class="text-gray-500">Love Language: </span><span id="sp_love" class="text-gray-200 ml-1"></span></div>
             <div><span id="lbl_sp_comm" class="text-gray-500">Communication: </span><span id="sp_comm" class="text-gray-200 ml-1"></span></div>
+            <div id="sp_humor_row" class="hidden"><span class="text-gray-500">Humor: </span><span id="sp_humor" class="text-gray-200 ml-1"></span></div>
           </div>
         </div>
         <div class="card p-5">
@@ -247,6 +249,24 @@
       <div class="card p-5 mb-4">
         <h3 id="lbl_sp_summary" class="text-sm font-semibold text-gray-400 mb-3">Personality Summary</h3>
         <p id="sp_summary" class="text-gray-200 leading-relaxed italic"></p>
+      </div>
+
+      <!-- Self Playbook -->
+      <div id="sp_playbook_section" class="hidden">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="card p-5">
+            <h3 class="text-sm font-semibold text-green-400 mb-3">✅ What Impresses You</h3>
+            <div id="sp_green_flags" class="space-y-2 text-sm text-gray-300"></div>
+          </div>
+          <div class="card p-5">
+            <h3 class="text-sm font-semibold text-purple-400 mb-3">💬 How You Talk</h3>
+            <div id="sp_verbal_patterns" class="space-y-2 text-sm text-gray-300"></div>
+          </div>
+        </div>
+        <div class="card p-5 mb-4" style="border-color:#ff4b8b44">
+          <h3 class="text-sm font-semibold text-pink-400 mb-3">🗓️ How You Date</h3>
+          <p id="sp_date_behavior" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+        </div>
       </div>
 
       <!-- Deep Self Analysis -->
@@ -435,9 +455,11 @@
           <h3 id="lbl_p_values" class="text-sm font-semibold text-purple-400 mt-4 mb-3">Core Values</h3>
           <div id="p_values" class="flex flex-wrap gap-1"></div>
           <div class="mt-4 space-y-2 text-sm">
+            <div id="p_mbti_row"><span class="text-gray-500">MBTI: </span><span id="p_mbti" class="badge-blue ml-1"></span></div>
             <div><span id="lbl_p_attachment" class="text-gray-500">Attachment: </span><span id="p_attachment" class="badge-pink ml-1"></span></div>
             <div><span id="lbl_p_love" class="text-gray-500">Love Language: </span><span id="p_love" class="text-gray-200 ml-1"></span></div>
             <div><span id="lbl_p_comm" class="text-gray-500">Communication: </span><span id="p_comm" class="text-gray-200 ml-1"></span></div>
+            <div id="p_humor_row" class="hidden"><span class="text-gray-500">Humor: </span><span id="p_humor" class="text-gray-200 ml-1"></span></div>
           </div>
         </div>
         <div class="card p-5">
@@ -445,12 +467,51 @@
           <p id="p_goals" class="text-sm text-gray-300 leading-relaxed"></p>
           <h3 id="lbl_p_triggers" class="text-sm font-semibold text-red-400 mt-4 mb-3">⚠️ Conflict Triggers</h3>
           <div id="p_triggers" class="space-y-1"></div>
+          <div id="p_dealbreakers_section" class="hidden mt-4">
+            <h3 class="text-sm font-semibold text-red-600 mb-2">🚫 Dealbreakers</h3>
+            <div id="p_dealbreakers" class="space-y-1"></div>
+          </div>
         </div>
       </div>
 
       <div class="card p-5 mb-4">
         <h3 id="lbl_p_summary" class="text-sm font-semibold text-gray-400 mb-3">Personality Summary</h3>
         <p id="p_summary" class="text-gray-200 leading-relaxed italic"></p>
+      </div>
+
+      <!-- Dating Playbook -->
+      <div id="p_playbook_section" class="hidden">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="card p-5">
+            <h3 class="text-sm font-semibold text-green-400 mb-3">✅ What Genuinely Impresses Her</h3>
+            <div id="p_green_flags" class="space-y-2 text-sm text-gray-300"></div>
+          </div>
+          <div class="card p-5">
+            <h3 class="text-sm font-semibold text-purple-400 mb-3">💬 How She Talks</h3>
+            <div id="p_verbal_patterns" class="space-y-2 text-sm text-gray-300"></div>
+          </div>
+        </div>
+        <div class="card p-5 mb-4" style="border-color:#ff4b8b44">
+          <h3 class="text-sm font-semibold text-pink-400 mb-3">🗓️ How She Dates</h3>
+          <p id="p_date_behavior" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+        </div>
+        <div class="card p-5 mb-4" style="border-color:#facc1544">
+          <h3 class="text-sm font-semibold text-yellow-400 mb-3">🔓 Trust Stages</h3>
+          <div class="space-y-4">
+            <div id="p_ts_stranger" class="hidden">
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">👤 Stranger</div>
+              <p id="p_ts_stranger_text" class="text-sm text-gray-300"></p>
+            </div>
+            <div id="p_ts_warming" class="hidden">
+              <div class="text-xs font-semibold text-yellow-600 uppercase tracking-wider mb-1">🌱 Warming Up</div>
+              <p id="p_ts_warming_text" class="text-sm text-gray-300"></p>
+            </div>
+            <div id="p_ts_interested" class="hidden">
+              <div class="text-xs font-semibold text-green-500 uppercase tracking-wider mb-1">💚 Genuinely Interested</div>
+              <p id="p_ts_interested_text" class="text-sm text-gray-300"></p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Deep Analysis -->
@@ -1171,13 +1232,26 @@ function renderSelfPersonality(p) {
     const noneStr = 'None';
     document.getElementById('sp_interests').innerHTML = interests.map(i => `<span class="badge-pink">${i}</span>`).join('') || `<span class="text-gray-500 text-sm">${noneStr}</span>`;
     document.getElementById('sp_values').innerHTML = values2.map(v => `<span class="badge-purple">${v}</span>`).join('') || `<span class="text-gray-500 text-sm">${noneStr}</span>`;
+    document.getElementById('sp_mbti').textContent = p.mbti_type || '';
     document.getElementById('sp_attachment').textContent = p.attachment_style || '';
     document.getElementById('sp_love').textContent = p.love_language || '';
     document.getElementById('sp_comm').textContent = p.communication_style || '';
     document.getElementById('sp_goals').textContent = p.relationship_goals || '';
     document.getElementById('sp_triggers').innerHTML = triggers.map(trig => `<div class="text-sm text-gray-300 mb-1">⚡ ${trig}</div>`).join('') || `<span class="text-gray-500 text-sm">${noneStr}</span>`;
+    if (p.humor_style) { document.getElementById('sp_humor').textContent = p.humor_style; document.getElementById('sp_humor_row').classList.remove('hidden'); }
     document.getElementById('sp_summary').textContent = p.personality_summary || '';
     document.getElementById('sp_reasoning').textContent = p.analysis_reasoning || '';
+
+    // Self Playbook
+    const spGreenFlags = p.green_flags || [];
+    const spVerbal = p.verbal_patterns || [];
+    const spDateBehavior = p.date_behavior || '';
+    if (spGreenFlags.length || spVerbal.length || spDateBehavior) {
+      document.getElementById('sp_playbook_section').classList.remove('hidden');
+      document.getElementById('sp_green_flags').innerHTML = spGreenFlags.map(g => `<div class="flex gap-2"><span class="text-green-400 flex-shrink-0">✓</span><span>${g}</span></div>`).join('');
+      document.getElementById('sp_verbal_patterns').innerHTML = spVerbal.map(v => `<div class="flex gap-2"><span class="text-purple-400 flex-shrink-0">•</span><span>${v}</span></div>`).join('');
+      document.getElementById('sp_date_behavior').textContent = spDateBehavior;
+    }
 
     // Deep self analysis
     const sda = p.deep_analysis || {};
@@ -1699,13 +1773,36 @@ function renderPersonality(p) {
   // Tags
   document.getElementById('p_interests').innerHTML = (p.true_interests || []).map(i => `<span class="tag">${i}</span>`).join('');
   document.getElementById('p_values').innerHTML = (p.core_values || []).map(v => `<span class="tag">${v}</span>`).join('');
+  document.getElementById('p_mbti').textContent = p.mbti_type || '';
   document.getElementById('p_attachment').textContent = p.attachment_style || '';
   document.getElementById('p_love').textContent = p.love_language || '';
   document.getElementById('p_comm').textContent = p.communication_style || '';
   document.getElementById('p_goals').textContent = p.relationship_goals || '';
   document.getElementById('p_triggers').innerHTML = (p.conflict_triggers || []).map(trig => `<div class="text-xs text-red-400">⚠️ ${trig}</div>`).join('');
+  if (p.humor_style) { document.getElementById('p_humor').textContent = p.humor_style; document.getElementById('p_humor_row').classList.remove('hidden'); }
+  const dealbreakers = p.deal_breakers || [];
+  if (dealbreakers.length) {
+    document.getElementById('p_dealbreakers').innerHTML = dealbreakers.map(d => `<div class="text-xs text-red-600">🚫 ${d}</div>`).join('');
+    document.getElementById('p_dealbreakers_section').classList.remove('hidden');
+  }
   document.getElementById('p_summary').textContent = p.personality_summary || '';
   document.getElementById('p_reasoning').textContent = p.analysis_reasoning || '';
+
+  // Dating Playbook (new fields)
+  const greenFlags = p.green_flags || [];
+  const verbalPatterns = p.verbal_patterns || [];
+  const dateBehavior = p.date_behavior || '';
+  const trustStages = p.trust_stages || {};
+  const hasPlaybook = greenFlags.length || verbalPatterns.length || dateBehavior || Object.keys(trustStages).length;
+  if (hasPlaybook) {
+    document.getElementById('p_playbook_section').classList.remove('hidden');
+    document.getElementById('p_green_flags').innerHTML = greenFlags.map(g => `<div class="flex gap-2"><span class="text-green-400 flex-shrink-0">✓</span><span>${g}</span></div>`).join('');
+    document.getElementById('p_verbal_patterns').innerHTML = verbalPatterns.map(v => `<div class="flex gap-2"><span class="text-purple-400 flex-shrink-0">•</span><span>${v}</span></div>`).join('');
+    document.getElementById('p_date_behavior').textContent = dateBehavior;
+    if (trustStages.stranger) { document.getElementById('p_ts_stranger').classList.remove('hidden'); document.getElementById('p_ts_stranger_text').textContent = trustStages.stranger; }
+    if (trustStages.warming_up) { document.getElementById('p_ts_warming').classList.remove('hidden'); document.getElementById('p_ts_warming_text').textContent = trustStages.warming_up; }
+    if (trustStages.genuinely_interested) { document.getElementById('p_ts_interested').classList.remove('hidden'); document.getElementById('p_ts_interested_text').textContent = trustStages.genuinely_interested; }
+  }
 
   // Deep analysis
   const da = p.deep_analysis || {};
