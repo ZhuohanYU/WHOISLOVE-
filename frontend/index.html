@@ -76,6 +76,13 @@
     </select>
     <button id="btn_new_target" class="btn-secondary w-full mt-2 text-sm" onclick="showPage('target'); switchTab('tabNew')">+ New Target</button>
   </div>
+  <div style="padding:12px 16px; border-top:1px solid #333; margin-top:12px">
+    <div id="lbl_lang" style="font-size:11px; color:#666; margin-bottom:6px;">Language</div>
+    <div style="display:flex; gap:6px;">
+      <button id="btn_lang_zh" onclick="setLang('zh')" class="btn-secondary text-xs" style="flex:1">中文</button>
+      <button id="btn_lang_en" onclick="setLang('en')" class="btn-primary text-xs" style="flex:1">EN</button>
+    </div>
+  </div>
 </div>
 
 <!-- ─── Main ────────────────────────────────────────────────── -->
@@ -936,12 +943,145 @@ const I18N = {
     upload_done: n => `✅ ${n} files uploaded!`,
     upload_fail: name => `Upload failed: ${name}`,
     lbl_uploaded_files2_str: 'Uploaded Files',
+  },
+  zh: {
+    lang_label: '语言',
+    nav_profile: '👤 我的档案', nav_target: '💝 Ta的档案',
+    nav_analysis: '🧠 人格分析', nav_simulate: '💬 约会模拟', nav_history: '📋 历史记录',
+    page_profile_title: '👤 我的档案', page_profile_sub: '填写你的信息——AI 将模拟你的约会风格',
+    tab_basic: '📝 基本信息', tab_social: '📱 社交媒体', tab_files: '📎 文件', tab_self: '🧠 我的人格',
+    label_name: '姓名', label_age: '年龄', label_job: '职业', label_comm: '沟通风格',
+    label_personality: '个性描述', label_interests: '兴趣爱好', label_goals: '感情目标',
+    ph_name: '你的名字', ph_age: '25', ph_job: '例如：产品经理', ph_comm: '例如：幽默，喜欢深度对话',
+    ph_personality: '用几句话描述你的性格...', ph_interests: '例如：摄影、徒步、阅读、咖啡',
+    ph_goals: '例如：认真的长期关系',
+    label_wechat: '💬 微信', label_wechat_sig: '个性签名', label_moments: '朋友圈描述',
+    ph_wechat_sig: '你的微信个性签名...', ph_moments: '描述你最近的朋友圈内容...',
+    label_instagram: '📸 Instagram', label_ig_bio: '简介', label_ig_posts: '发帖风格',
+    ph_ig_bio: '你的 Instagram 简介...', ph_ig_posts: '描述你的发帖风格...',
+    label_dating_app: '💘 交友软件', label_dating_bio: '简介', label_extra: '补充说明',
+    ph_dating_bio: '你的交友软件简介...', ph_extra: '任何有助于模拟你真实性格的额外信息...',
+    btn_save: '💾 保存档案', btn_analyze_self: '🔍 分析我的人格', label_uploaded_files: '已上传文件',
+    self_analysis_desc: 'AI 根据你填写的信息推断你的真实人格',
+    self_analysis_running: '🔄 分析中，请稍候...', self_analysis_empty: '暂无结果——点击"分析我的人格"开始',
+    page_target_title: '💝 Ta的档案', page_target_sub: '添加Ta的信息——支持 PDF / Word / 图片',
+    tab_all: '📋 所有对象', tab_edit: '✏️ 编辑 / 新建', tab_files2: '📎 文件',
+    label_target_name: 'Ta的名字', label_target_age: '年龄（可选）',
+    label_ig: 'Instagram', label_ig_bio2: '简介', label_ig_posts2: '发帖描述',
+    ph_ig_bio2: '粘贴Ta的 Instagram 简介...', ph_ig_posts2: '描述Ta的内容、风格、频率...',
+    label_linkedin: 'LinkedIn', ph_linkedin: '职位、公司、教育背景...',
+    label_facebook: 'Facebook / 微信', ph_facebook: '公开内容、家庭信息...',
+    label_photos: '照片描述', ph_photos: '风格、地点、照片中的人物...',
+    label_dating2: '交友软件简介', ph_dating2: '粘贴 Hinge/探探/Tinder 简介...',
+    label_notes: '额外备注', ph_notes: '整体感觉、你注意到的细节...',
+    btn_save_target: '💾 保存', label_uploaded_files2: '已上传文件',
+    page_analysis_title: '🧠 人格分析', page_analysis_sub: 'AI 从社交数据推断Ta的真实人格',
+    btn_analyze: '🔍 运行分析', analysis_running: '🔄 分析中（约30秒）...',
+    label_interests: '真实兴趣（推断）', label_values: '核心价值观',
+    label_attachment: '依恋风格：', label_love: '爱的语言：', label_comm2: '沟通方式：',
+    label_goals2: 'Ta真正在寻找什么', label_goals2_self: '你在寻找什么',
+    label_triggers: '⚠️ 冲突触发点', label_triggers_self: '⚠️ 你的冲突触发点',
+    label_openness: '开放性', label_conscientiousness: '尽责性',
+    label_extraversion: '外向性', label_agreeableness: '宜人性', label_neuroticism: '神经质',
+    label_summary: '人格总结', label_reasoning: '🔍 分析推理',
+    label_deep: '🔬 深度人格档案', label_dating_style: '💘 Ta的约会风格', label_dating_style_self: '💘 你的约会风格',
+    label_impress: '✨ 如何真正打动Ta', label_first_date: '🗓️ 理想初次约会创意',
+    label_signal: '🔎 信号解码器', label_wont_say: '🤫 Ta不会说但在乎的事',
+    label_red_flags: '⚠️ 需要注意的红旗', label_long_term: '🔮 长期兼容性',
+    analysis_empty: '选择一个对象并点击"运行分析"',
+    page_simulate_title: '💬 约会模拟', page_simulate_sub: '输入约会场景，观看对话展开',
+    label_location: '地点', label_activity: '活动', ph_location: '例如：SoHo 的屋顶酒吧', ph_activity: '例如：傍晚小酌',
+    label_exchanges: '对话轮数（影响深度）',
+    btn_start: '▶ 开始模拟', btn_next: '▶ 下一次约会',
+    sim_no_target: '请先从侧边栏选择一个对象并完成人格分析',
+    label_chemistry: '化学反应', label_interest: 'Ta的兴趣', label_perf: '你的表现', label_next_prob: '下次约会%',
+    label_narrative: '📖 完整约会回顾', label_turning: '⚡ 关键转折点',
+    label_best: '✨ 最佳时刻', label_awkward: '😬 尴尬时刻',
+    label_her_psych: '🧠 Ta的心理', label_compat: '🔗 兼容性分析',
+    label_feedback: '💭 Ta事后的内心独白', label_friends: '👯 Ta告诉朋友的话',
+    label_momentum: '📈 关系进展', label_next_sug: '🗓️ 下次约会建议',
+    label_advice: '💡 下次可行建议',
+    page_history_title: '📋 历史记录', page_history_sub: '所有模拟约会的档案',
+    tab_all_hist: '📊 全部对比', tab_detail: '📅 详细记录',
+    history_empty: '暂无约会历史',
+    hist_no_target: '暂无约会记录',
+    hist_no_sessions: '暂无记录',
+    hist_not_simulated: '尚未模拟',
+    hist_sessions_count: (n, d) => `${n} 次约会 · 最近 ${d}`,
+    hist_avg_chem: '平均化学反应', hist_avg_int: '平均兴趣', hist_avg_perf: '平均表现',
+    hist_progress: '进展%',
+    hist_chart_chem: '平均化学反应', hist_chart_int: '平均Ta的兴趣', hist_chart_perf: '平均你的表现',
+    hist_married: '💍 婚后生活', hist_date_n: n => `第${n}次约会`,
+    hist_married_short: '💍 已婚', hist_date_n_short: n => `#${n}`,
+    hist_chem_short: '化学', hist_int_short: '兴趣', hist_perf_short: '表现', hist_prob_short: '%',
+    hist_chem_label: '化学反应', hist_int_label: 'Ta的兴趣', hist_perf_label: '你的表现',
+    hist_trend_chem: '化学反应', hist_trend_int: 'Ta的兴趣', hist_trend_perf: '你的表现',
+    hist_advice: '💡 建议', hist_full_conv: '查看完整对话',
+    sim_date_label: n => `第${n}次约会设置`,
+    sim_last_date: (n, c, i) => `上次约会（#${n}）：化学反应 ${c}/10，Ta的兴趣 ${i}/10`,
+    years_old: ' 岁',
+    lbl_sim_manual: '手动', lbl_sim_auto: '自动',
+    lbl_auto_desc: 'AI 根据双方人格自动生成约会场景并模拟完整约会',
+    lbl_auto_scenario_title: '🎯 AI 生成的约会场景',
+    lbl_auto_btn: '自动模拟约会',
+    lbl_btn_next_date: '下一次约会', lbl_btn_compat: '兼容性报告',
+    lbl_compat_score: '整体匹配度', lbl_compat_pros: '✅ 为什么你们合适',
+    lbl_compat_cons: '⚠️ 潜在挑战', lbl_compat_pred: '🔮 在一起会是什么样',
+    lbl_compat_decide: '你的决定…',
+    lbl_go_date: '约Ta出去！去真实的第一次约会', lbl_skip_date: '算了——不太合适',
+    compat_loading: '💘 AI 正在分析你们的兼容性...',
+    compat_yes_text: '💑 太好了！', compat_yes_desc: '勇敢迈出这一步，约Ta出去吧。祝你好运！🍀',
+    compat_no_text: '😔 没关系', compat_no_desc: '模拟结果说也许不太合适，但现实生活总比 AI 更复杂。保持开放的心。',
+    auto_generating: '🤖 AI 正在生成约会场景...',
+    tab_auto_archive: '自动存档',
+    archive_no_target: '请先选择一个对象并运行自动模拟',
+    archive_empty: '暂无自动模拟记录——在约会模拟页面使用自动模式',
+    archive_date_label: n => `自动约会 #${n}`,
+    archive_compat_score: '匹配',
+    archive_decision_yes: '💑 约Ta出去了', archive_decision_no: '😔 决定放弃',
+    archive_no_compat: '兼容性报告尚未生成',
+    label_current_target: '当前对象', opt_select_target: '— 选择对象 —', btn_new_target: '+ 新建对象',
+    label_all_timeline: '所有约会时间线', hist_no_target_sidebar: '请先从侧边栏选择一个对象',
+    label_sim_mode: '特殊模式', opt_mode_normal: '普通约会', opt_mode_marriage: '模拟婚后生活',
+    label_ig_posts_lbl: '发帖描述', label_dating_app_bio_lbl: '交友软件简介（探探 / 陌陌 / Tinder 等）',
+    label_extra_lbl: '补充说明',
+    lbl_file_src: '文件来源', lbl_file_src2: '文件来源平台',
+    opt_wechat: '微信截图', opt_moments: '朋友圈截图', opt_other: '其他',
+    lbl_drop_text: '点击或拖拽文件到此', lbl_filetypes: '支持 PDF · Word · JPG/PNG · 文本', lbl_or: '或', lbl_paste: '⌘V / Ctrl+V 粘贴截图',
+    lbl_t_name_lbl: '姓名 / 昵称 *', lbl_t_age_lbl: '年龄',
+    lbl_t_ig_posts_lbl: 'Instagram 发帖描述', lbl_t_linkedin_lbl: '💼 LinkedIn 信息',
+    lbl_t_facebook_lbl: '📘 Facebook 信息', lbl_t_photos_lbl: '📸 照片描述',
+    lbl_t_dating_lbl: '💕 交友软件简介', lbl_t_notes_lbl: '📝 补充说明',
+    btn_clear: '清空', btn_edit: '编辑', btn_delete: '删除',
+    files_warning: '⚠️ 请从侧边栏选择一个对象，或在编辑/新建中创建一个',
+    no_files_yet: '尚未上传文件',
+    target_list_empty: '还没有添加对象——去编辑/新建创建一个',
+    no_bio: '无简介',
+    confirm_delete_target: '删除此对象及所有相关数据？',
+    toast_deleted: '已删除', name_required: '姓名为必填项',
+    select_target_first: '请先选择一个对象',
+    uploading_msg: (name, i, n) => `处理 ${name} (${i}/${n})...`,
+    upload_done: n => `✅ ${n} 个文件已上传！`,
+    upload_fail: name => `上传失败：${name}`,
+    lbl_uploaded_files2_str: '已上传文件',
   }
 };
 
-let currentLang = 'en';
+let currentLang = localStorage.getItem('lang') || 'en';
 
-function t(key) { return I18N.en[key] || key; }
+function t(key) {
+  return (I18N[currentLang] || I18N.en)[key] || I18N.en[key] || key;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  const btnZh = document.getElementById('btn_lang_zh');
+  const btnEn = document.getElementById('btn_lang_en');
+  if (btnZh) btnZh.className = lang === 'zh' ? 'btn-primary text-xs' : 'btn-secondary text-xs';
+  if (btnEn) btnEn.className = lang === 'en' ? 'btn-primary text-xs' : 'btn-secondary text-xs';
+  applyTranslations();
+}
 
 function applyTranslations() {
   // Nav items
@@ -1412,7 +1552,7 @@ async function loadTargetSelector() {
   targets.forEach(t => {
     const opt = document.createElement('option');
     opt.value = t.id;
-    opt.textContent = `${t.name} (${t.age || '?'}${I18N.en.years_old})`;
+    opt.textContent = `${t.name} (${t.age || '?'}${(I18N[currentLang] || I18N.en).years_old})`;
     if (t.id == currentTargetId) opt.selected = true;
     sel.appendChild(opt);
   });
@@ -2398,7 +2538,7 @@ async function loadHistoryDetail() {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
-  applyTranslations();
+  setLang(currentLang);
   await loadUserProfile();
   await loadTargetSelector();
 }

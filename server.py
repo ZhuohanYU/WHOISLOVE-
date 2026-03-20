@@ -220,8 +220,8 @@ def analyze_user(body: AnalyzeIn = None, background_tasks: BackgroundTasks = Non
                 additional_notes=extra_notes,
             )
 
-            profile = infer_personality(social, client, lang="en")
-            save_user_personality(profile, lang="en")
+            profile = infer_personality(social, client, lang=body.lang)
+            save_user_personality(profile, lang=body.lang)
             tasks[task_id]["status"] = "done"
             tasks[task_id]["result"] = "ok"
         except Exception as e:
@@ -362,8 +362,8 @@ def run_analysis(target_id: int, body: AnalyzeIn = None, background_tasks: Backg
                 additional_notes=merge(target_info.get("additional_notes", ""), file_texts["Other"]),
             )
 
-            profile = infer_personality(social, client, lang="en")
-            save_personality(target_id, profile, lang="en")
+            profile = infer_personality(social, client, lang=body.lang)
+            save_personality(target_id, profile, lang=body.lang)
             tasks[task_id]["status"] = "done"
             tasks[task_id]["result"] = "ok"
         except Exception as e:
@@ -387,7 +387,7 @@ def run_simulate(target_id: int, data: SimulateIn, background_tasks: BackgroundT
     def do_simulate():
         try:
             client = get_client()
-            user_dict = load_user_profile(lang="en") or {}
+            user_dict = load_user_profile(lang=data.lang) or {}
             user = UserProfile(
                 name=user_dict.get("name", "User"),
                 age=user_dict.get("age", 25),
@@ -397,9 +397,9 @@ def run_simulate(target_id: int, data: SimulateIn, background_tasks: BackgroundT
                 relationship_goals=user_dict.get("relationship_goals", ""),
                 communication_style=user_dict.get("communication_style", ""),
             )
-            her = load_latest_personality(target_id, lang="en")
+            her = load_latest_personality(target_id, lang=data.lang)
             date_number = count_date_sessions(target_id) + 1
-            past_sessions = load_date_sessions(target_id, lang="en")
+            past_sessions = load_date_sessions(target_id, lang=data.lang)
 
             if data.special_mode == "marriage":
                 actual_date_number = 999
@@ -433,11 +433,11 @@ def run_simulate(target_id: int, data: SimulateIn, background_tasks: BackgroundT
                 num_exchanges=data.num_exchanges,
                 previous_date_result=prev_result,
                 stream_callback=on_message,
-                lang="en",
+                lang=data.lang,
                 date_history=past_sessions,
             )
 
-            save_date_session(target_id, scenario, result, lang="en")
+            save_date_session(target_id, scenario, result, lang=data.lang)
 
             tasks[task_id]["status"] = "done"
             tasks[task_id]["result"] = {
@@ -469,7 +469,7 @@ def _ai_generate_scenario(client: OpenAI, user_dict: dict, her, date_number: int
     interests_her = ", ".join((her.true_interests or [])[:5]) or "varied"
     values_her = ", ".join((her.core_values or [])[:3]) or "not specified"
     interests_user = ", ".join((user_dict.get("interests") or [])[:5]) or "varied"
-    lang_instruction = "Respond in English."
+    lang_instruction = "用中文回答。" if lang == "zh" else "Respond in English."
     prompt = f"""Two people are going on date #{date_number}. Based on their personalities, suggest the PERFECT date scenario.
 
 Person A (user): {user_dict.get('name','User')}, age {user_dict.get('age',25)}, interests: {interests_user}, personality: {user_dict.get('personality_description','')}
@@ -501,7 +501,7 @@ def run_auto_simulate(target_id: int, data: AutoSimulateIn, background_tasks: Ba
     def do_auto_simulate():
         try:
             client = get_client()
-            user_dict = load_user_profile(lang="en") or {}
+            user_dict = load_user_profile(lang=data.lang) or {}
             user = UserProfile(
                 name=user_dict.get("name", "User"),
                 age=user_dict.get("age", 25),
@@ -511,11 +511,11 @@ def run_auto_simulate(target_id: int, data: AutoSimulateIn, background_tasks: Ba
                 relationship_goals=user_dict.get("relationship_goals", ""),
                 communication_style=user_dict.get("communication_style", ""),
             )
-            her = load_latest_personality(target_id, lang="en")
+            her = load_latest_personality(target_id, lang=data.lang)
             date_number = count_date_sessions(target_id) + 1
-            past_sessions = load_date_sessions(target_id, lang="en")
+            past_sessions = load_date_sessions(target_id, lang=data.lang)
 
-            scenario = _ai_generate_scenario(client, user_dict, her, date_number, "en")
+            scenario = _ai_generate_scenario(client, user_dict, her, date_number, data.lang)
             tasks[task_id]["scenario"] = {"location": scenario.location, "activity": scenario.activity}
 
             prev_result = None
@@ -538,10 +538,10 @@ def run_auto_simulate(target_id: int, data: AutoSimulateIn, background_tasks: Ba
                 her=her, user=user, scenario=scenario, client=client,
                 date_number=date_number, num_exchanges=data.num_exchanges,
                 previous_date_result=prev_result, stream_callback=on_message,
-                lang="en",
+                lang=data.lang,
                 date_history=past_sessions,
             )
-            session_id = save_date_session(target_id, scenario, result, lang="en", is_auto=True)
+            session_id = save_date_session(target_id, scenario, result, lang=data.lang, is_auto=True)
 
             tasks[task_id]["status"] = "done"
             tasks[task_id]["result"] = {
@@ -572,9 +572,9 @@ def run_auto_simulate(target_id: int, data: AutoSimulateIn, background_tasks: Ba
 @app.post("/api/targets/{target_id}/compatibility")
 def get_compatibility_report(target_id: int, lang: str = "en"):
     client = get_client()
-    her = load_latest_personality(target_id, lang="en")
-    user_dict = load_user_profile(lang="en") or {}
-    sessions = load_date_sessions(target_id, lang="en")
+    her = load_latest_personality(target_id, lang=lang)
+    user_dict = load_user_profile(lang=lang) or {}
+    sessions = load_date_sessions(target_id, lang=lang)
 
     if not her or not sessions:
         raise HTTPException(400, "Need personality analysis and at least one date session")
@@ -585,7 +585,7 @@ def get_compatibility_report(target_id: int, lang: str = "en"):
     avg_prob = sum(s["next_date_probability"] for s in sessions) / len(sessions)
     session_summaries = "\n".join(f"Date {s['date_number']}: chemistry={s['chemistry_score']}, interest={s['her_interest_level']}, performance={s['your_performance_score']}, next_prob={s['next_date_probability']:.0%} — {s['summary']}" for s in sessions[-5:])
 
-    lang_instruction = "Write everything in English."
+    lang_instruction = "用中文写所有内容。" if lang == "zh" else "Write everything in English."
     prompt = f"""You are a relationship compatibility analyst. Based on {len(sessions)} simulated date(s), analyze if these two people should pursue a real relationship.
 
 USER: {user_dict.get('name','User')}, age {user_dict.get('age',25)}, personality: {user_dict.get('personality_description','')}, goals: {user_dict.get('relationship_goals','')}

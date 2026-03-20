@@ -95,6 +95,7 @@ def _build_her_system_prompt(
     scenario: DateScenario,
     date_number: int,
     relationship_state: dict,
+    lang: str = "en",
 ) -> str:
     interests_str = ", ".join(her.true_interests[:6]) if her.true_interests else "not specified"
     values_str = ", ".join(her.core_values[:4]) if her.core_values else "not specified"
@@ -114,7 +115,12 @@ def _build_her_system_prompt(
     mbti_line = f"MBTI: {her.mbti_type}" if her.mbti_type else ""
     humor_line = f"Humor Style: {her.humor_style}" if her.humor_style else ""
 
-    return f"""⚠️ LANGUAGE RULE: You MUST speak in English only. Your dialogue responses must always be in English regardless of any Chinese text in your profile.
+    if lang == "zh":
+        lang_rule = "⚠️ 语言规则：你必须只用中文对话。你的所有回复都必须是中文，无论角色档案中有无英文内容。"
+    else:
+        lang_rule = "⚠️ LANGUAGE RULE: You MUST speak in English only. Your dialogue responses must always be in English regardless of any Chinese text in your profile."
+
+    return f"""{lang_rule}
 
 You are {her.name}, a real person on a date. You are NOT an AI assistant — you are fully inhabiting this character with all their complexity, quirks, and contradictions.
 
@@ -183,6 +189,7 @@ def _build_user_system_prompt(
     scenario: DateScenario,
     date_number: int,
     relationship_state: dict,
+    lang: str = "en",
 ) -> str:
     interests_str = ", ".join(user.interests[:5]) if user.interests else "varied"
 
@@ -197,7 +204,12 @@ def _build_user_system_prompt(
     else:
         context = f"Date #{date_number} — first real impression. Be yourself, not your best-case version of yourself."
 
-    return f"""⚠️ LANGUAGE RULE: You MUST speak in English only. Your dialogue responses must always be in English.
+    if lang == "zh":
+        user_lang_rule = "⚠️ 语言规则：你必须只用中文对话。你的所有回复都必须是中文。"
+    else:
+        user_lang_rule = "⚠️ LANGUAGE RULE: You MUST speak in English only. Your dialogue responses must always be in English."
+
+    return f"""{user_lang_rule}
 
 You are {user.name}, a real person on a date. You are NOT an AI assistant.
 
@@ -243,7 +255,7 @@ def _run_agent_turn(client: OpenAI, system_prompt: str, conversation_history: li
 
 # ─── Conversation History ──────────────────────────────────────────────────────
 
-def _build_chat_history(conversation_log: list, her_name: str, user_name: str, is_her: bool) -> list:
+def _build_chat_history(conversation_log: list, her_name: str, user_name: str, is_her: bool, lang: str = "en") -> list:
     """
     Convert conversation log to OpenAI chat format.
     Each agent sees their own lines as 'assistant' and the other as 'user'.
@@ -263,7 +275,11 @@ def _build_chat_history(conversation_log: list, her_name: str, user_name: str, i
     if messages and messages[0]["role"] == "assistant":
         messages.insert(0, {"role": "user", "content": "[Date begins]"})
 
-    messages.append({"role": "user", "content": "Continue the conversation. Respond naturally in 1-4 sentences. MUST be in English."})
+    if lang == "zh":
+        continue_prompt = "继续对话。用1-4句话自然地回应。必须用中文。"
+    else:
+        continue_prompt = "Continue the conversation. Respond naturally in 1-4 sentences. MUST be in English."
+    messages.append({"role": "user", "content": continue_prompt})
     return messages
 
 
@@ -277,17 +293,99 @@ def _evaluate_date(
     conversation: str,
     date_number: int,
     relationship_state: dict,
+    lang: str = "en",
 ) -> DateResult:
     """
     Deep evaluation using structured analysis.
     Lower temperature (0.4) for more precise, consistent scoring.
     """
-    triggers_str = ", ".join(her.conflict_triggers) if her.conflict_triggers else "none noted"
-    interests_str = ", ".join(her.true_interests[:5]) if her.true_interests else "unknown"
-    green_flags_str = ", ".join(her.green_flags[:3]) if her.green_flags else "not specified"
-    deal_breakers_str = ", ".join(her.deal_breakers[:3]) if her.deal_breakers else "none noted"
+    triggers_str = ", ".join(her.conflict_triggers) if her.conflict_triggers else ("无" if lang == "zh" else "none noted")
+    interests_str = ", ".join(her.true_interests[:5]) if her.true_interests else ("未知" if lang == "zh" else "unknown")
+    green_flags_str = ", ".join(her.green_flags[:3]) if her.green_flags else ("未指定" if lang == "zh" else "not specified")
+    deal_breakers_str = ", ".join(her.deal_breakers[:3]) if her.deal_breakers else ("无" if lang == "zh" else "none noted")
 
-    eval_prompt = f"""You are a precise relationship analyst. Evaluate this simulated date using the full psychological profile of both people.
+    if lang == "zh":
+        eval_prompt = f"""你是一位精准的恋爱关系分析师。请使用双方的完整心理档案评估这次模拟约会。
+
+重要：你的所有回复必须用中文。所有 JSON 文字字段必须用中文。
+
+=== 心理档案 ===
+她（{her.name}）：
+- 人格特质：{her.personality_summary}
+- MBTI：{her.mbti_type or "未知"}
+- 依恋风格：{her.attachment_style}
+- 爱的语言：{her.love_language}
+- 她真正寻找的：{her.relationship_goals}
+- 真正能打动她的：{green_flags_str}
+- 冲突触发点：{triggers_str}
+- 绝对底线：{deal_breakers_str}
+- 真实兴趣：{interests_str}
+- 她的约会方式：{her.date_behavior or "真实地展现自己"}
+
+他（{user.name}）：
+- 年龄/职业：{user.age}，{user.occupation}
+- 人格特质：{user.personality_description}
+- 沟通风格：{user.communication_style}
+- 寻求的关系：{user.relationship_goals}
+
+=== 约会前的关系状态 ===
+- 她对他的信任度：{relationship_state['trust_level']}/10
+- 她的情感倾向：{relationship_state['emotional_disposition']}
+- 吸引力趋势：{relationship_state['attraction_trend']}
+- 迄今约会次数：{relationship_state.get('total_dates', 0)}
+
+=== 约会信息 ===
+第 {date_number} 次约会，地点：{scenario.location}，活动：{scenario.activity}
+
+=== 完整对话记录 ===
+{conversation}
+
+=== 你的分析任务 ===
+基于她的实际心理档案评估这次约会。不要用通用的"好约会"标准打分——而是基于发生的事情是否符合她个人的反应方式来打分。
+
+只返回合法 JSON，所有文字字段用中文：
+{{
+    "chemistry_score": <float 0-10，这两个具体的人之间真实的化学反应>,
+    "her_interest_level": <float 0-10，约会后她的真实兴趣水平——考虑她的依恋风格和她通常如何表现兴趣>,
+    "your_performance_score": <float 0-10，考虑到她的具体性格和她的反应方式，他表现如何>,
+    "next_date_probability": <float 0-1，她同意再次约会的现实概率，考虑她的依恋风格 {her.attachment_style}>,
+    "summary": "<3-4句话，概括这次约会的整体走向和氛围>",
+    "conversation_highlights": [
+        "<互动特别有效的时刻及原因>",
+        "<另一个亮点>",
+        "<另一个亮点>"
+    ],
+    "awkward_moments": [
+        "<让对话冷场或产生摩擦的具体时刻，及为何基于她的性格会如此>",
+        "<另一个（如有）>"
+    ],
+    "best_moments": [
+        "<最好的时刻及为何奏效——联系到她的具体心理>",
+        "<第二好的时刻>",
+        "<第三好的时刻>"
+    ],
+    "her_feedback": "<150字以上，约会后她会有的内心独白——具体、真实、诚实。引用对话中的实际时刻。什么让她印象深刻？什么让她困惑？她感受到了什么却不会说出口？从她的具体视角写，考虑她的依恋风格（{her.attachment_style}）和沟通风格。>",
+    "advice_for_next_time": [
+        "<基于她性格的具体可操作建议——不是通用约会建议>",
+        "<建议2>",
+        "<建议3>",
+        "<建议4>"
+    ],
+    "deep_report": {{
+        "narrative": "<250字以上，描述约会的完整弧线：开场氛围、关键转折点、情感高低点、如何结束。分析互动节奏及它揭示的两人关系动态。>",
+        "turning_points": [
+            {{"moment": "<具体时刻>", "impact": "<这如何改变了约会走向，以及为何基于她的心理会如此>"}},
+            {{"moment": "<具体时刻>", "impact": "<影响分析>"}}
+        ],
+        "her_psychology": "<分析她全程的心理反应：哪些时刻激活了她的依恋模式，她的{her.attachment_style}风格如何影响她对事情的解读，她的信任水平何时及为何发生了变化>",
+        "compatibility_analysis": "<对两人兼容性的诚实评估——具体的互补元素和摩擦点，不要泛泛而谈>",
+        "what_she_told_friends": "<她会对好朋友进行的现实约会复盘——随意、诚实、具体涉及发生的对话>",
+        "momentum": "<这次约会是推进、维持还是倒退了关系？程度如何？为什么？她的感情具体发生了什么变化？>",
+        "next_date_suggestion": "<针对性格匹配的下次约会建议：考虑他们现在关系轨迹所处位置，具体的地点/活动类型，要专注于什么，要避免什么>"
+    }}
+}}"""
+    else:
+        eval_prompt = f"""You are a precise relationship analyst. Evaluate this simulated date using the full psychological profile of both people.
 
 IMPORTANT: Your ENTIRE response must be in English only. Even if input data contains other languages, all output JSON text fields must be in English.
 
@@ -420,8 +518,8 @@ def simulate_date(
     # Compute relationship state from full history (MiroFish-inspired dynamic state)
     relationship_state = _compute_relationship_state(date_history or [])
 
-    her_system = _build_her_system_prompt(her, scenario, date_number, relationship_state)
-    user_system = _build_user_system_prompt(user, scenario, date_number, relationship_state)
+    her_system = _build_her_system_prompt(her, scenario, date_number, relationship_state, lang=lang)
+    user_system = _build_user_system_prompt(user, scenario, date_number, relationship_state, lang=lang)
 
     # Add most recent date context if available
     if previous_date_result and date_number > 1:
@@ -438,10 +536,16 @@ def simulate_date(
     conversation_log = []
 
     # User opens the conversation
-    open_prompt = (
-        f"You've just arrived at {scenario.location} for {scenario.activity}. "
-        f"She's there. Open the conversation naturally — don't overthink it."
-    )
+    if lang == "zh":
+        open_prompt = (
+            f"你刚到达{scenario.location}，准备{scenario.activity}。"
+            f"她在那里。自然地开启对话——不要想太多。"
+        )
+    else:
+        open_prompt = (
+            f"You've just arrived at {scenario.location} for {scenario.activity}. "
+            f"She's there. Open the conversation naturally — don't overthink it."
+        )
     user_history = [{"role": "user", "content": open_prompt}]
     user_response = _run_agent_turn(client, user_system, user_history)
     conversation_log.append(f"{user.name}: {user_response}")
@@ -450,34 +554,41 @@ def simulate_date(
 
     # Alternate turns
     for _ in range(num_exchanges):
-        her_history = _build_chat_history(conversation_log, her.name, user.name, is_her=True)
+        her_history = _build_chat_history(conversation_log, her.name, user.name, is_her=True, lang=lang)
         her_response = _run_agent_turn(client, her_system, her_history)
         conversation_log.append(f"{her.name}: {her_response}")
         if stream_callback:
             stream_callback(her.name, her_response)
 
-        user_history = _build_chat_history(conversation_log, her.name, user.name, is_her=False)
+        user_history = _build_chat_history(conversation_log, her.name, user.name, is_her=False, lang=lang)
         user_response = _run_agent_turn(client, user_system, user_history)
         conversation_log.append(f"{user.name}: {user_response}")
         if stream_callback:
             stream_callback(user.name, user_response)
 
     # Closing exchange
-    her_history = _build_chat_history(conversation_log, her.name, user.name, is_her=True)
-    her_history.append({"role": "user", "content": "The date is wrapping up. How do you say goodbye?"})
+    if lang == "zh":
+        her_close_prompt = "约会快结束了。你怎么说再见？"
+        user_close_prompt = "约会要结束了。你怎么说再见？"
+    else:
+        her_close_prompt = "The date is wrapping up. How do you say goodbye?"
+        user_close_prompt = "The date is ending. How do you say goodbye?"
+
+    her_history = _build_chat_history(conversation_log, her.name, user.name, is_her=True, lang=lang)
+    her_history.append({"role": "user", "content": her_close_prompt})
     her_response = _run_agent_turn(client, her_system, her_history)
     conversation_log.append(f"{her.name}: {her_response}")
     if stream_callback:
         stream_callback(her.name, her_response)
 
-    user_history = _build_chat_history(conversation_log, her.name, user.name, is_her=False)
-    user_history.append({"role": "user", "content": "The date is ending. How do you say goodbye?"})
+    user_history = _build_chat_history(conversation_log, her.name, user.name, is_her=False, lang=lang)
+    user_history.append({"role": "user", "content": user_close_prompt})
     user_response = _run_agent_turn(client, user_system, user_history)
     conversation_log.append(f"{user.name}: {user_response}")
     if stream_callback:
         stream_callback(user.name, user_response)
 
     full_conversation = "\n".join(conversation_log)
-    result = _evaluate_date(client, her, user, scenario, full_conversation, date_number, relationship_state)
+    result = _evaluate_date(client, her, user, scenario, full_conversation, date_number, relationship_state, lang=lang)
     result.full_conversation = full_conversation
     return result
