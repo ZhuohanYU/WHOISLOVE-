@@ -23,7 +23,7 @@ class SocialProfile:
 class PersonalityProfile:
     """
     Inferred personality profile from social data.
-    Based on Big Five model + attachment style.
+    Based on Big Five model + MBTI + attachment theory.
     """
     name: str
     age: Optional[int]
@@ -37,6 +37,9 @@ class PersonalityProfile:
 
     # Attachment style: "secure", "anxious", "avoidant", "disorganized"
     attachment_style: str = "secure"
+
+    # MBTI type (e.g. "INTJ", "ENFP")
+    mbti_type: str = ""
 
     # Inferred real interests (not self-reported)
     true_interests: list = field(default_factory=list)
@@ -55,6 +58,24 @@ class PersonalityProfile:
 
     # Love language
     love_language: str = ""
+
+    # Humor style (dry, sarcastic, playful, witty, self-deprecating, etc.)
+    humor_style: str = ""
+
+    # Specific verbal patterns / phrases she tends to use
+    verbal_patterns: list = field(default_factory=list)
+
+    # What genuinely impresses / attracts her (specific, behavioral)
+    green_flags: list = field(default_factory=list)
+
+    # Absolute dealbreakers (beyond general conflict triggers)
+    deal_breakers: list = field(default_factory=list)
+
+    # How she specifically behaves on dates at different stages
+    date_behavior: str = ""
+
+    # Trust stages: how she acts at each level of familiarity
+    trust_stages: dict = field(default_factory=dict)
 
     # Summary description
     personality_summary: str = ""
@@ -105,4 +126,4 @@ class DateResult:
     her_feedback: str = ""              # her internal monologue after
     advice_for_next_time: list = field(default_factory=list)
     full_conversation: str = ""
-    deep_report: dict = field(default_factory=dict)  # 深度报告扩展字段
+    deep_report: dict = field(default_factory=dict)

@@ -434,6 +434,7 @@ def run_simulate(target_id: int, data: SimulateIn, background_tasks: BackgroundT
                 previous_date_result=prev_result,
                 stream_callback=on_message,
                 lang="en",
+                date_history=past_sessions,
             )
 
             save_date_session(target_id, scenario, result, lang="en")
@@ -538,6 +539,7 @@ def run_auto_simulate(target_id: int, data: AutoSimulateIn, background_tasks: Ba
                 date_number=date_number, num_exchanges=data.num_exchanges,
                 previous_date_result=prev_result, stream_callback=on_message,
                 lang="en",
+                date_history=past_sessions,
             )
             session_id = save_date_session(target_id, scenario, result, lang="en", is_auto=True)
 

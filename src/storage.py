@@ -279,7 +279,17 @@ def delete_user_file(file_id: int):
 def _migrate_personality_cols(conn):
     """Add missing columns to personality_profiles table."""
     cols = [r[1] for r in conn.execute("PRAGMA table_info(personality_profiles)").fetchall()]
-    for col, defn in [("deep_analysis", "TEXT"), ("lang", "TEXT DEFAULT 'zh'")]:
+    for col, defn in [
+        ("deep_analysis", "TEXT"),
+        ("lang", "TEXT DEFAULT 'en'"),
+        ("mbti_type", "TEXT DEFAULT ''"),
+        ("humor_style", "TEXT DEFAULT ''"),
+        ("verbal_patterns", "TEXT DEFAULT '[]'"),
+        ("green_flags", "TEXT DEFAULT '[]'"),
+        ("deal_breakers", "TEXT DEFAULT '[]'"),
+        ("date_behavior", "TEXT DEFAULT ''"),
+        ("trust_stages", "TEXT DEFAULT '{}'"),
+    ]:
         if col not in cols:
             conn.execute(f"ALTER TABLE personality_profiles ADD COLUMN {col} {defn}")
 
@@ -291,37 +301,54 @@ def _build_personality(row, name, age) -> PersonalityProfile:
         openness=row["openness"], conscientiousness=row["conscientiousness"],
         extraversion=row["extraversion"], agreeableness=row["agreeableness"],
         neuroticism=row["neuroticism"], attachment_style=row["attachment_style"],
+        mbti_type=row["mbti_type"] if "mbti_type" in keys else "",
         true_interests=json.loads(row["true_interests"] or "[]"),
         core_values=json.loads(row["core_values"] or "[]"),
         communication_style=row["communication_style"] or "",
         relationship_goals=row["relationship_goals"] or "",
         conflict_triggers=json.loads(row["conflict_triggers"] or "[]"),
         love_language=row["love_language"] or "",
+        humor_style=row["humor_style"] if "humor_style" in keys else "",
+        verbal_patterns=json.loads(row["verbal_patterns"] or "[]") if "verbal_patterns" in keys else [],
+        green_flags=json.loads(row["green_flags"] or "[]") if "green_flags" in keys else [],
+        deal_breakers=json.loads(row["deal_breakers"] or "[]") if "deal_breakers" in keys else [],
+        date_behavior=row["date_behavior"] if "date_behavior" in keys else "",
+        trust_stages=json.loads(row["trust_stages"] or "{}") if "trust_stages" in keys else {},
         personality_summary=row["personality_summary"] or "",
         analysis_reasoning=row["analysis_reasoning"] or "",
         deep_analysis=json.loads(row["deep_analysis"] or "{}") if "deep_analysis" in keys else {},
     )
 
 
-def save_user_personality(profile, lang: str = "zh") -> None:
+def save_user_personality(profile, lang: str = "en") -> None:
     """Save personality analysis for the app user (target_id=0)."""
     with get_conn() as conn:
         _migrate_personality_cols(conn)
         conn.execute("""
             INSERT INTO personality_profiles
                 (target_id, openness, conscientiousness, extraversion, agreeableness,
-                 neuroticism, attachment_style, true_interests, core_values,
+                 neuroticism, attachment_style, mbti_type, true_interests, core_values,
                  communication_style, relationship_goals, conflict_triggers,
-                 love_language, personality_summary, analysis_reasoning, deep_analysis, lang, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 love_language, humor_style, verbal_patterns, green_flags, deal_breakers,
+                 date_behavior, trust_stages, personality_summary, analysis_reasoning,
+                 deep_analysis, lang, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             0, profile.openness, profile.conscientiousness,
             profile.extraversion, profile.agreeableness, profile.neuroticism,
-            profile.attachment_style, json.dumps(profile.true_interests, ensure_ascii=False),
-            json.dumps(profile.core_values, ensure_ascii=False), profile.communication_style,
-            profile.relationship_goals, json.dumps(profile.conflict_triggers, ensure_ascii=False),
-            profile.love_language, profile.personality_summary,
-            profile.analysis_reasoning, json.dumps(getattr(profile, "deep_analysis", {}), ensure_ascii=False),
+            profile.attachment_style, profile.mbti_type,
+            json.dumps(profile.true_interests, ensure_ascii=False),
+            json.dumps(profile.core_values, ensure_ascii=False),
+            profile.communication_style, profile.relationship_goals,
+            json.dumps(profile.conflict_triggers, ensure_ascii=False),
+            profile.love_language, profile.humor_style,
+            json.dumps(profile.verbal_patterns, ensure_ascii=False),
+            json.dumps(profile.green_flags, ensure_ascii=False),
+            json.dumps(profile.deal_breakers, ensure_ascii=False),
+            profile.date_behavior,
+            json.dumps(profile.trust_stages, ensure_ascii=False),
+            profile.personality_summary, profile.analysis_reasoning,
+            json.dumps(getattr(profile, "deep_analysis", {}), ensure_ascii=False),
             lang, datetime.now().isoformat()
         ))
 
@@ -482,24 +509,34 @@ def delete_file(file_id: int):
 
 # ─── Personality Profiles ─────────────────────────────────────────────────────
 
-def save_personality(target_id: int, profile: PersonalityProfile, lang: str = "zh") -> int:
+def save_personality(target_id: int, profile: PersonalityProfile, lang: str = "en") -> int:
     with get_conn() as conn:
         _migrate_personality_cols(conn)
         cur = conn.execute("""
             INSERT INTO personality_profiles
                 (target_id, openness, conscientiousness, extraversion, agreeableness,
-                 neuroticism, attachment_style, true_interests, core_values,
+                 neuroticism, attachment_style, mbti_type, true_interests, core_values,
                  communication_style, relationship_goals, conflict_triggers,
-                 love_language, personality_summary, analysis_reasoning, deep_analysis, lang, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 love_language, humor_style, verbal_patterns, green_flags, deal_breakers,
+                 date_behavior, trust_stages, personality_summary, analysis_reasoning,
+                 deep_analysis, lang, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             target_id, profile.openness, profile.conscientiousness,
             profile.extraversion, profile.agreeableness, profile.neuroticism,
-            profile.attachment_style, json.dumps(profile.true_interests, ensure_ascii=False),
-            json.dumps(profile.core_values, ensure_ascii=False), profile.communication_style,
-            profile.relationship_goals, json.dumps(profile.conflict_triggers, ensure_ascii=False),
-            profile.love_language, profile.personality_summary,
-            profile.analysis_reasoning, json.dumps(getattr(profile, "deep_analysis", {}), ensure_ascii=False),
+            profile.attachment_style, profile.mbti_type,
+            json.dumps(profile.true_interests, ensure_ascii=False),
+            json.dumps(profile.core_values, ensure_ascii=False),
+            profile.communication_style, profile.relationship_goals,
+            json.dumps(profile.conflict_triggers, ensure_ascii=False),
+            profile.love_language, profile.humor_style,
+            json.dumps(profile.verbal_patterns, ensure_ascii=False),
+            json.dumps(profile.green_flags, ensure_ascii=False),
+            json.dumps(profile.deal_breakers, ensure_ascii=False),
+            profile.date_behavior,
+            json.dumps(profile.trust_stages, ensure_ascii=False),
+            profile.personality_summary, profile.analysis_reasoning,
+            json.dumps(getattr(profile, "deep_analysis", {}), ensure_ascii=False),
             lang, datetime.now().isoformat()
         ))
         return cur.lastrowid

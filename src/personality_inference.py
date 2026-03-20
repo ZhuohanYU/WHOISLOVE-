@@ -8,19 +8,21 @@ from openai import OpenAI
 from .models import SocialProfile, PersonalityProfile
 
 
-INFERENCE_SYSTEM_PROMPT_EN = """You are a psychologist and behavioral analyst specializing in personality inference from social media. You use the Big Five model (OCEAN), attachment theory, and social signal analysis to build accurate personality profiles.
+INFERENCE_SYSTEM_PROMPT_EN = """You are a clinical psychologist and behavioral analyst specializing in personality inference from digital social signals. You combine the Big Five (OCEAN) model, MBTI typology, attachment theory, and behavioral pattern analysis to build high-fidelity personality profiles.
 
-Your task is to infer someone's TRUE personality from their social media presence — not just their surface presentation, but their deeper essence. Focus on:
+Your task is to infer someone's TRUE personality — not their curated surface image, but their psychological core. You look for:
 
-1. Contradictions across platforms (LinkedIn vs Instagram vs Dating App)
-2. Absent content (what topics they avoid, what they don't post)
-3. Patterns in posting frequency, timing, and engagement style
-4. Visual aesthetics and lifestyle signals in photo descriptions
-5. Language patterns — formal vs casual, emoji usage, writing style
+1. Contradictions across platforms (LinkedIn professional vs Instagram personal vs dating app vulnerable)
+2. Absent content — what they conspicuously avoid posting or discussing
+3. Micro-signals: emoji usage, sentence length, response patterns, aesthetic choices
+4. The gap between how they present themselves and what they're actually signaling
+5. MBTI behavioral markers visible in language style and content choices
+6. Trust and attachment patterns embedded in how they engage online
 
-Output a detailed personality report as valid JSON only. No extra text. All text fields must be in English."""
+Output a complete personality profile as valid JSON only. No extra text. All text fields in English. Be precise, specific, and psychologically rigorous — avoid generic descriptions."""
 
-INFERENCE_USER_TEMPLATE_EN = """Analyze this person's social media presence and infer their personality:
+
+INFERENCE_USER_TEMPLATE_EN = """Analyze this person and construct a complete psychological profile:
 
 === SOCIAL MEDIA DATA ===
 Name: {name}
@@ -35,7 +37,7 @@ Dating App Bio: {dating_app_bio}
 Additional Notes: {additional_notes}
 
 === YOUR TASK ===
-Infer this person's personality profile. Return ONLY valid JSON matching this structure. All text fields must be in English:
+Return ONLY valid JSON. All text fields must be specific and grounded in the data above — not generic:
 {{
     "openness": <float 0-10>,
     "conscientiousness": <float 0-10>,
@@ -43,43 +45,77 @@ Infer this person's personality profile. Return ONLY valid JSON matching this st
     "agreeableness": <float 0-10>,
     "neuroticism": <float 0-10>,
     "attachment_style": "<secure|anxious|avoidant|disorganized>",
-    "true_interests": ["<interest1>", "<interest2>", ...],
-    "core_values": ["<value1>", "<value2>", ...],
-    "communication_style": "<communication style description>",
-    "relationship_goals": "<what they're really looking for>",
-    "conflict_triggers": ["<trigger1>", "<trigger2>", ...],
-    "love_language": "<primary love language>",
-    "personality_summary": "<150+ word vivid personality summary — go deep, capture core contradictions, inner drives, and what makes them unique>",
-    "analysis_reasoning": "<your reasoning — what signals you read and why you drew these conclusions>",
+    "mbti_type": "<one of the 16 MBTI types, e.g. INTJ, ENFP — infer from behavioral signals>",
+    "true_interests": ["<specific inferred interest, not just what they claim>", ...],
+    "core_values": ["<value1>", ...],
+    "communication_style": "<specific description of HOW they communicate — pace, directness, emotional expressiveness, humor>",
+    "relationship_goals": "<what they're truly seeking in a partner, inferred — not just what they say>",
+    "conflict_triggers": ["<specific situation or behavior that would cause a negative reaction>", ...],
+    "love_language": "<primary love language with brief explanation of how it shows up>",
+    "humor_style": "<their specific humor style — dry/sarcastic/playful/witty/self-deprecating/dark — with example of the type of joke they'd make>",
+    "verbal_patterns": [
+        "<specific phrase, expression, or linguistic habit she tends to use>",
+        "<another verbal pattern — e.g. uses questions instead of statements, tends to qualify opinions, uses specific slang>",
+        "<another specific pattern>"
+    ],
+    "green_flags": [
+        "<specific behavior or quality that would genuinely impress or attract her — not generic 'be kind'>",
+        "<another specific green flag>",
+        "<another>",
+        "<another>"
+    ],
+    "deal_breakers": [
+        "<absolute dealbreaker — specific behavior she cannot tolerate based on her values/personality>",
+        "<another dealbreaker>",
+        "<another>"
+    ],
+    "date_behavior": "<detailed description of how she actually behaves on dates at different stages: first date (guarded/open, what she tests for, how she signals interest), warming up phase, when fully comfortable — include specific behaviors like whether she asks questions vs waits, eye contact patterns, how she handles awkward silences>",
+    "trust_stages": {{
+        "stranger": "<how she acts with someone she just met — what walls are up, what she does/doesn't reveal, body language and conversational patterns>",
+        "warming_up": "<how she acts after 1-2 positive interactions — what changes, what small signals indicate she's opening up>",
+        "genuinely_interested": "<how she acts when she's actually into someone — specific behavioral shifts, increased vulnerability, changes in communication frequency or style>"
+    }},
+    "personality_summary": "<200+ word vivid psychological portrait — capture who this person fundamentally IS, their core contradictions, what drives them, what they fear, what they're looking for without admitting it. Make it feel like you actually know this person.>",
+    "analysis_reasoning": "<your reasoning chain: what specific signals you observed, what they imply, how you resolved contradictions>",
     "deep_analysis": {{
-        "who_they_really_are": "<200+ word deep personality narrative: what is their essence? What is their inner world like? Where does their surface image diverge from their true self?>",
-        "dating_style": "<their dating style: what's a first date with them like? How do they build trust? What signals do they send while being pursued?>",
-        "how_to_impress": ["<specific thing that genuinely impresses them 1>", "<thing 2>", "<thing 3>", "<thing 4>"],
-        "first_date_ideas": ["<ideal first date idea based on their personality 1>", "<idea 2>", "<idea 3>"],
-        "red_flags_to_watch": ["<potential issue to watch for 1>", "<issue 2>", "<issue 3>"],
-        "long_term_compatibility": "<long-term prediction: what are they like as a partner? Where might issues arise? What type of person fits them best?>",
-        "what_they_wont_say": "<things they'll never say directly but deeply care about — hidden needs inferred from signals>",
+        "who_they_really_are": "<250+ word deep narrative: beyond the surface — what is their inner world like? What do they want that they'd never say out loud? What is the tension between who they present and who they are?>",
+        "dating_style": "<exactly how they date: first date atmosphere, how they test compatibility, what they pay attention to, how long before they open up, what makes them excited vs cautious>",
+        "how_to_impress": [
+            "<specific, behavioral thing that genuinely impresses her — not 'be confident' but something specific to her personality>",
+            "<another>",
+            "<another>",
+            "<another>"
+        ],
+        "first_date_ideas": [
+            "<ideal first date that matches her specific interests and personality>",
+            "<another>",
+            "<another>"
+        ],
+        "red_flags_to_watch": [
+            "<specific pattern she might display that could become a problem>",
+            "<another>",
+            "<another>"
+        ],
+        "long_term_compatibility": "<realistic prediction of what she's like as a long-term partner: how she handles conflict, what she needs to feel secure, what type of person brings out the best in her, potential friction points>",
+        "what_they_wont_say": "<the hidden needs and fears she'll never directly express — inferred from contradictions and absences in her social signals>",
         "signal_decoder": [
-            {{"signal": "<specific observed behavior/trait>", "meaning": "<what this signal actually means>"}},
-            {{"signal": "<specific observed behavior/trait>", "meaning": "<actual meaning>"}},
-            {{"signal": "<specific observed behavior/trait>", "meaning": "<actual meaning>"}}
+            {{"signal": "<specific observed behavior>", "meaning": "<what this actually signals about her psychology>"}},
+            {{"signal": "<specific observed behavior>", "meaning": "<actual meaning>"}},
+            {{"signal": "<specific observed behavior>", "meaning": "<actual meaning>"}},
+            {{"signal": "<specific observed behavior>", "meaning": "<actual meaning>"}}
         ]
     }}
 }}
 
-Be specific, honest, and insightful. Don't just repeat surface information — infer the deeper truth."""
+Be brutally specific. Generic personality descriptions are useless. Ground everything in the data provided."""
 
 
 def infer_personality(social_profile: SocialProfile, client: OpenAI, lang: str = "en") -> PersonalityProfile:
     """
-    Uses DeepSeek to infer personality from social media data.
-    deepseek-reasoner has built-in chain-of-thought reasoning.
-    Always uses English templates regardless of lang parameter.
+    Uses DeepSeek R1 to infer a high-fidelity personality profile from social media data.
+    R1's chain-of-thought reasoning produces significantly better psychological inference.
     """
-    system_prompt = INFERENCE_SYSTEM_PROMPT_EN
-    template = INFERENCE_USER_TEMPLATE_EN
-
-    user_message = template.format(
+    user_message = INFERENCE_USER_TEMPLATE_EN.format(
         name=social_profile.name,
         age=social_profile.age or "unknown",
         instagram_bio=social_profile.instagram_bio or "not provided",
@@ -92,16 +128,15 @@ def infer_personality(social_profile: SocialProfile, client: OpenAI, lang: str =
     )
 
     response = client.chat.completions.create(
-        model="deepseek-reasoner",  # R1 model — has chain-of-thought reasoning
+        model="deepseek-reasoner",  # R1 — chain-of-thought for better psychological inference
         messages=[
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": INFERENCE_SYSTEM_PROMPT_EN},
             {"role": "user", "content": user_message},
         ],
     )
 
     raw_json = response.choices[0].message.content.strip()
 
-    # Clean up if wrapped in markdown code blocks
     if raw_json.startswith("```"):
         lines = raw_json.split("\n")
         raw_json = "\n".join(lines[1:-1])
@@ -117,12 +152,19 @@ def infer_personality(social_profile: SocialProfile, client: OpenAI, lang: str =
         agreeableness=data["agreeableness"],
         neuroticism=data["neuroticism"],
         attachment_style=data["attachment_style"],
+        mbti_type=data.get("mbti_type", ""),
         true_interests=data["true_interests"],
         core_values=data["core_values"],
         communication_style=data["communication_style"],
         relationship_goals=data["relationship_goals"],
         conflict_triggers=data["conflict_triggers"],
         love_language=data["love_language"],
+        humor_style=data.get("humor_style", ""),
+        verbal_patterns=data.get("verbal_patterns", []),
+        green_flags=data.get("green_flags", []),
+        deal_breakers=data.get("deal_breakers", []),
+        date_behavior=data.get("date_behavior", ""),
+        trust_stages=data.get("trust_stages", {}),
         personality_summary=data["personality_summary"],
         analysis_reasoning=data["analysis_reasoning"],
         deep_analysis=data.get("deep_analysis", {}),

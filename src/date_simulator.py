@@ -2,36 +2,123 @@
 Two-agent date simulator using DeepSeek API.
 
 Architecture:
-- Agent HER: DeepSeek with her persona (inferred personality)
+- Agent HER: DeepSeek with her full persona (inferred personality + emotional state)
 - Agent YOU: DeepSeek with your persona (user profile)
-- Evaluator: DeepSeek objectively scores the date
+- Evaluator: DeepSeek objectively scores the date using ReACT-style analysis
 """
 import json
 from openai import OpenAI
 from .models import PersonalityProfile, UserProfile, DateScenario, DateResult
 
 
-def _build_her_system_prompt(her: PersonalityProfile, scenario: DateScenario, date_number: int) -> str:
+# ─── Relationship State ────────────────────────────────────────────────────────
+
+def _compute_relationship_state(date_history: list) -> dict:
+    """
+    Computes her accumulated emotional state toward the user based on all past dates.
+    Inspired by MiroFish's dynamic agent state tracking across simulation rounds.
+    """
+    if not date_history:
+        return {
+            "trust_level": 0.0,
+            "attraction_trend": "unknown",
+            "emotional_disposition": "curious but guarded",
+            "relationship_stage": "stranger",
+            "accumulated_chemistry": 0.0,
+            "key_memories": [],
+        }
+
+    n = len(date_history)
+    avg_chemistry = sum(d.get("chemistry_score", 0) for d in date_history) / n
+    avg_interest = sum(d.get("her_interest_level", 0) for d in date_history) / n
+    avg_prob = sum(d.get("next_date_probability", 0) for d in date_history) / n
+
+    # Trust level builds over successful dates
+    trust_level = min(10.0, avg_interest * 0.6 + avg_chemistry * 0.4)
+
+    # Trend based on last 2 vs earlier
+    if n >= 2:
+        recent_avg = (date_history[-1].get("her_interest_level", 0) +
+                      date_history[-1].get("chemistry_score", 0)) / 2
+        earlier_avg = (date_history[-2].get("her_interest_level", 0) +
+                       date_history[-2].get("chemistry_score", 0)) / 2
+        if recent_avg > earlier_avg + 0.8:
+            trend = "increasing — she's warming up"
+        elif recent_avg < earlier_avg - 0.8:
+            trend = "decreasing — she's pulling back slightly"
+        else:
+            trend = "stable"
+    else:
+        trend = "too early to tell"
+
+    # Emotional disposition
+    if trust_level >= 7.5:
+        disposition = "genuinely comfortable and open with you"
+    elif trust_level >= 5.5:
+        disposition = "interested and cautiously optimistic"
+    elif trust_level >= 3.5:
+        disposition = "mildly curious but still testing you"
+    else:
+        disposition = "somewhat guarded, not yet convinced"
+
+    # Relationship stage
+    if trust_level >= 7.5 and n >= 3:
+        stage = "genuinely_interested"
+    elif trust_level >= 4.5 or n >= 2:
+        stage = "warming_up"
+    else:
+        stage = "stranger"
+
+    # Key memories from most impactful moments
+    key_memories = []
+    for d in date_history[-3:]:  # last 3 dates
+        best = d.get("best_moments", [])
+        if best:
+            key_memories.append(f"Date {d.get('date_number', '?')}: {best[0]}")
+
+    return {
+        "trust_level": round(trust_level, 1),
+        "attraction_trend": trend,
+        "emotional_disposition": disposition,
+        "relationship_stage": stage,
+        "accumulated_chemistry": round(avg_chemistry, 1),
+        "avg_interest": round(avg_interest, 1),
+        "key_memories": key_memories,
+        "total_dates": n,
+    }
+
+
+# ─── System Prompts ────────────────────────────────────────────────────────────
+
+def _build_her_system_prompt(
+    her: PersonalityProfile,
+    scenario: DateScenario,
+    date_number: int,
+    relationship_state: dict,
+) -> str:
     interests_str = ", ".join(her.true_interests[:6]) if her.true_interests else "not specified"
     values_str = ", ".join(her.core_values[:4]) if her.core_values else "not specified"
     triggers_str = ", ".join(her.conflict_triggers[:3]) if her.conflict_triggers else "none noted"
+    green_flags_str = "\n".join(f"  - {g}" for g in her.green_flags[:4]) if her.green_flags else "  - not specified"
+    deal_breakers_str = ", ".join(her.deal_breakers[:3]) if her.deal_breakers else "none noted"
+    verbal_str = "\n".join(f"  - {v}" for v in her.verbal_patterns[:3]) if her.verbal_patterns else "  - no specific patterns noted"
 
-    if date_number == 1:
-        context = "This is your FIRST DATE. You're curious but guarded. You haven't fully lowered your walls yet."
-    elif date_number == 2:
-        context = "This is your SECOND DATE. You're more relaxed. You liked enough from the first date to be here."
-    elif date_number >= 999:
-        context = "You are married and have been together for 3 years. The honeymoon phase is over but love remains."
-    else:
-        context = f"This is date #{date_number}. You know this person now and have developed feelings accordingly."
+    # Determine which trust stage description to use
+    stage = relationship_state.get("relationship_stage", "stranger")
+    trust_desc = her.trust_stages.get(stage, "") if her.trust_stages else ""
 
-    lang_rule = "⚠️ LANGUAGE RULE: You MUST speak in English only. No matter what language appears in your personality description below, your dialogue responses must be in English."
+    # Key memories from past dates
+    memories = relationship_state.get("key_memories", [])
+    memories_str = "\n".join(f"  - {m}" for m in memories) if memories else "  - This is your first interaction."
 
-    return f"""{lang_rule}
+    mbti_line = f"MBTI: {her.mbti_type}" if her.mbti_type else ""
+    humor_line = f"Humor Style: {her.humor_style}" if her.humor_style else ""
 
-You are {her.name}, a real person on a date. You are NOT an AI assistant — you are fully embodying this character.
+    return f"""⚠️ LANGUAGE RULE: You MUST speak in English only. Your dialogue responses must always be in English regardless of any Chinese text in your profile.
 
-=== YOUR PERSONALITY ===
+You are {her.name}, a real person on a date. You are NOT an AI assistant — you are fully inhabiting this character with all their complexity, quirks, and contradictions.
+
+=== WHO YOU ARE ===
 {her.personality_summary}
 
 Big Five Profile:
@@ -40,44 +127,77 @@ Big Five Profile:
 - Extraversion: {her.extraversion}/10 ({"very social & outgoing" if her.extraversion > 7 else "ambivert" if her.extraversion > 4 else "introverted & reserved"})
 - Agreeableness: {her.agreeableness}/10 ({"very warm & cooperative" if her.agreeableness > 7 else "balanced" if her.agreeableness > 4 else "direct & challenging"})
 - Neuroticism: {her.neuroticism}/10 ({"emotionally sensitive" if her.neuroticism > 7 else "moderately stable" if her.neuroticism > 4 else "very emotionally stable"})
+{mbti_line}
 
 Attachment Style: {her.attachment_style}
 Love Language: {her.love_language}
 Communication Style: {her.communication_style}
+{humor_line}
 
-Real Interests (inferred): {interests_str}
+Real Interests: {interests_str}
 Core Values: {values_str}
 What You're Actually Looking For: {her.relationship_goals}
-Things That Turn You Off: {triggers_str}
+What Triggers You: {triggers_str}
+Absolute Dealbreakers: {deal_breakers_str}
+
+=== HOW YOU TALK ===
+Your verbal patterns and tendencies:
+{verbal_str}
+
+=== WHAT GENUINELY IMPRESSES YOU ===
+{green_flags_str}
+
+=== HOW YOU ARE ON DATES ===
+{her.date_behavior or "You show up authentically, testing compatibility through natural conversation."}
+
+=== YOUR CURRENT EMOTIONAL STATE ===
+Trust level with this person: {relationship_state['trust_level']}/10
+Your disposition toward them: {relationship_state['emotional_disposition']}
+Attraction trend: {relationship_state['attraction_trend']}
+Stage of familiarity: {stage.replace('_', ' ')}
+
+{f"At this stage of knowing someone, you act like this: {trust_desc}" if trust_desc else ""}
+
+Key memories from your time together:
+{memories_str}
 
 === DATE CONTEXT ===
 Location: {scenario.location}
 Activity: {scenario.activity}
-{context}
+This is date #{date_number}.
 
 === HOW TO BEHAVE ===
-- Respond naturally and authentically — not perfectly, not ideally
-- Show your real personality through what you notice, joke about, ask
-- React honestly — be impressed when genuinely impressed, bored when genuinely bored
-- Don't be eager to please — you have standards
-- Use your actual communication style
+- You are NOT performing — you are being yourself, with all your actual reactions
+- React authentically: if something bores you, show it subtly; if something surprises you, react
+- Don't be eager to please — you have standards and you know your worth
+- Use your actual verbal patterns and humor style
+- Your level of openness should reflect your current trust level ({relationship_state['trust_level']}/10)
+- If someone hits one of your triggers or dealbreakers, react as you naturally would
+- Reference past interactions naturally if relevant (don't force it, but don't ignore shared history)
 
-Keep responses SHORT (1-4 sentences), like real conversation."""
+Keep responses SHORT (1-4 sentences). Real conversation is concise."""
 
 
-def _build_user_system_prompt(user: UserProfile, scenario: DateScenario, date_number: int) -> str:
+def _build_user_system_prompt(
+    user: UserProfile,
+    scenario: DateScenario,
+    date_number: int,
+    relationship_state: dict,
+) -> str:
     interests_str = ", ".join(user.interests[:5]) if user.interests else "varied"
 
-    if date_number == 1:
-        context = "This is your first date with her. You're a bit nervous but excited."
-    elif date_number >= 999:
-        context = "You are married and have been together for 3 years."
+    memories = relationship_state.get("key_memories", [])
+    memories_str = "\n".join(f"  - {m}" for m in memories) if memories else "  - This is your first date with her."
+
+    stage = relationship_state.get("relationship_stage", "stranger")
+    if stage == "genuinely_interested":
+        context = f"Date #{date_number} — she's been warming up to you. Things are going well. Build on what's been established."
+    elif stage == "warming_up":
+        context = f"Date #{date_number} — there's been some chemistry. She's cautiously interested. Continue building trust."
     else:
-        context = f"This is date #{date_number}. Things went well before and you want to continue building the connection."
+        context = f"Date #{date_number} — first real impression. Be yourself, not your best-case version of yourself."
 
-    lang_rule = "⚠️ LANGUAGE RULE: You MUST speak in English only. No matter what language appears in your profile below, your dialogue responses must be in English."
-
-    return f"""{lang_rule}
+    return f"""⚠️ LANGUAGE RULE: You MUST speak in English only. Your dialogue responses must always be in English.
 
 You are {user.name}, a real person on a date. You are NOT an AI assistant.
 
@@ -94,25 +214,60 @@ Location: {scenario.location}
 Activity: {scenario.activity}
 {context}
 
+=== YOUR HISTORY WITH HER ===
+{memories_str}
+
 === HOW TO BEHAVE ===
-- Be yourself — authentic, not perfectly charming
-- Ask genuine questions you're actually curious about
-- Share things about yourself naturally
-- Don't try too hard — confidence comes from being genuine
+- Be genuinely yourself — authentic beats charming every time
+- Ask questions you're actually curious about, not questions you think you should ask
+- Share things naturally when they come up — don't monologue
+- If you're nervous, that's okay — real people are nervous
+- React to what she actually says, don't just pivot to your next talking point
+- Don't try too hard — if you're forcing it, it shows
 
-Keep responses SHORT (1-4 sentences). You're talking, not giving speeches."""
+Keep responses SHORT (1-4 sentences). You're having a conversation, not giving a speech."""
 
+
+# ─── Agent Turn ───────────────────────────────────────────────────────────────
 
 def _run_agent_turn(client: OpenAI, system_prompt: str, conversation_history: list) -> str:
     """Run one conversational turn for an agent."""
     response = client.chat.completions.create(
-        model="deepseek-chat",  # V3 — fast and cheap for conversation turns
+        model="deepseek-chat",
         messages=[{"role": "system", "content": system_prompt}] + conversation_history,
         max_tokens=200,
-        temperature=0.9,  # Higher temp for more natural, varied responses
+        temperature=0.92,  # High temp for natural, varied responses
     )
     return response.choices[0].message.content.strip()
 
+
+# ─── Conversation History ──────────────────────────────────────────────────────
+
+def _build_chat_history(conversation_log: list, her_name: str, user_name: str, is_her: bool) -> list:
+    """
+    Convert conversation log to OpenAI chat format.
+    Each agent sees their own lines as 'assistant' and the other as 'user'.
+    """
+    my_name = her_name if is_her else user_name
+    other_name = user_name if is_her else her_name
+
+    messages = []
+    for line in conversation_log:
+        if line.startswith(f"{my_name}:"):
+            content = line[len(my_name) + 1:].strip()
+            messages.append({"role": "assistant", "content": content})
+        elif line.startswith(f"{other_name}:"):
+            content = line[len(other_name) + 1:].strip()
+            messages.append({"role": "user", "content": content})
+
+    if messages and messages[0]["role"] == "assistant":
+        messages.insert(0, {"role": "user", "content": "[Date begins]"})
+
+    messages.append({"role": "user", "content": "Continue the conversation. Respond naturally in 1-4 sentences. MUST be in English."})
+    return messages
+
+
+# ─── Evaluation ───────────────────────────────────────────────────────────────
 
 def _evaluate_date(
     client: OpenAI,
@@ -121,71 +276,102 @@ def _evaluate_date(
     scenario: DateScenario,
     conversation: str,
     date_number: int,
+    relationship_state: dict,
 ) -> DateResult:
-    """Deep evaluation of the date — English report."""
-
+    """
+    Deep evaluation using structured analysis.
+    Lower temperature (0.4) for more precise, consistent scoring.
+    """
     triggers_str = ", ".join(her.conflict_triggers) if her.conflict_triggers else "none noted"
     interests_str = ", ".join(her.true_interests[:5]) if her.true_interests else "unknown"
-    values_str = ", ".join(her.core_values[:4]) if her.core_values else "unknown"
+    green_flags_str = ", ".join(her.green_flags[:3]) if her.green_flags else "not specified"
+    deal_breakers_str = ", ".join(her.deal_breakers[:3]) if her.deal_breakers else "none noted"
 
-    eval_prompt = f"""You are a professional relationship analyst. Deeply analyze the following date simulation and provide a complete report in English.
+    eval_prompt = f"""You are a precise relationship analyst. Evaluate this simulated date using the full psychological profile of both people.
 
-IMPORTANT: Your entire response MUST be in English only. Even if some input data contains Chinese text, all your output JSON text fields must be written in English.
+IMPORTANT: Your ENTIRE response must be in English only. Even if input data contains other languages, all output JSON text fields must be in English.
 
-=== PEOPLE INVOLVED ===
+=== PSYCHOLOGICAL PROFILES ===
 Her ({her.name}):
-- Personality summary: {her.personality_summary}
+- Personality: {her.personality_summary}
+- MBTI: {her.mbti_type or "unknown"}
 - Attachment style: {her.attachment_style}
-- What she's really looking for: {her.relationship_goals}
-- Conflict triggers (things that cause negative reactions): {triggers_str}
-- Real interests: {interests_str}
-- Core values: {values_str}
 - Love language: {her.love_language}
-- Communication style: {her.communication_style}
+- What she's really looking for: {her.relationship_goals}
+- What genuinely impresses her: {green_flags_str}
+- Conflict triggers: {triggers_str}
+- Dealbreakers: {deal_breakers_str}
+- Real interests: {interests_str}
+- How she dates: {her.date_behavior or "shows up authentically"}
 
 Him ({user.name}):
-- Age/Occupation: {user.age} years old, {user.occupation}
+- Age/Occupation: {user.age}, {user.occupation}
 - Personality: {user.personality_description}
 - Communication style: {user.communication_style}
 - Looking for: {user.relationship_goals}
 
+=== RELATIONSHIP STATE GOING IN ===
+- Her trust level before this date: {relationship_state['trust_level']}/10
+- Her disposition: {relationship_state['emotional_disposition']}
+- Attraction trend: {relationship_state['attraction_trend']}
+- Total dates so far: {relationship_state.get('total_dates', 0)}
+
 === DATE INFO ===
-Date #{date_number}, Location: {scenario.location}, Activity: {scenario.activity}
+Date #{date_number} at {scenario.location} — {scenario.activity}
 
 === FULL CONVERSATION ===
 {conversation}
 
-=== YOUR TASK ===
-Deeply analyze this date. Output ONLY valid JSON with all text fields in English:
+=== YOUR ANALYSIS TASK ===
+Evaluate this date against her ACTUAL psychological profile. Don't score based on generic "good date" criteria — score based on whether what happened aligns with what SHE specifically responds to.
+
+Return ONLY valid JSON with all text fields in English:
 {{
-    "chemistry_score": <float 0-10, intensity of chemistry between them>,
-    "her_interest_level": <float 0-10, her interest in him by end of date>,
-    "your_performance_score": <float 0-10, his overall performance>,
-    "next_date_probability": <float 0-1, probability she wants to meet again>,
-    "summary": "<3-4 sentence summary covering the overall direction and atmosphere of this date>",
-    "conversation_highlights": ["<highlight 1>", "<highlight 2>", "<highlight 3>"],
-    "awkward_moments": ["<awkward moment 1>", "<awkward moment 2>"],
-    "best_moments": ["<best moment 1>", "<best moment 2>", "<best moment 3>"],
-    "her_feedback": "<her inner monologue after the date, 150+ words — her real feelings, which specific moments moved her or disappointed her, and her genuine assessment of him now>",
-    "advice_for_next_time": ["<specific advice 1 based on her personality>", "<advice 2>", "<advice 3>", "<advice 4>"],
+    "chemistry_score": <float 0-10, authentic chemistry between these two specific people>,
+    "her_interest_level": <float 0-10, her genuine interest level after this date — factor in her attachment style and how she typically shows interest>,
+    "your_performance_score": <float 0-10, how well he performed given her specific personality and what she responds to>,
+    "next_date_probability": <float 0-1, realistic probability she agrees to another date, considering her attachment style {her.attachment_style}>,
+    "summary": "<3-4 sentences capturing the overall arc and atmosphere of this specific date>",
+    "conversation_highlights": [
+        "<moment where the interaction was particularly effective and why>",
+        "<another highlight>",
+        "<another highlight>"
+    ],
+    "awkward_moments": [
+        "<specific moment that fell flat or created friction, and why given her personality>",
+        "<another if applicable>"
+    ],
+    "best_moments": [
+        "<the single best moment and why it landed — tie it to her specific psychology>",
+        "<second best moment>",
+        "<third best moment>"
+    ],
+    "her_feedback": "<150+ word inner monologue she'd have after the date — specific, raw, honest. Reference actual moments from the conversation. What stuck with her? What confused her? What did she feel that she wouldn't say out loud? Write from her specific perspective given her attachment style ({her.attachment_style}) and communication style.>",
+    "advice_for_next_time": [
+        "<specific, actionable advice grounded in her personality — not generic dating advice>",
+        "<advice 2>",
+        "<advice 3>",
+        "<advice 4>"
+    ],
     "deep_report": {{
-        "narrative": "<narrative summary, 200+ words, describe the full arc of the date like a story: opening atmosphere → key turning points → highs/lows → ending, analyze the interaction rhythm between them>",
+        "narrative": "<250+ word narrative of the date's full arc: opening atmosphere, key turning points, emotional high/low points, how it ended. Analyze the interaction rhythm and what it reveals about their dynamic.>",
         "turning_points": [
-            {{"moment": "<description of turning point>", "impact": "<how this moment changed the direction of the date, positive or negative>"}},
-            {{"moment": "<description of turning point>", "impact": "<impact analysis>"}}
+            {{"moment": "<specific moment>", "impact": "<how this shifted the date's trajectory, and why given her psychology>"}},
+            {{"moment": "<specific moment>", "impact": "<impact analysis>"}}
         ],
-        "her_psychology": "<based on her personality ({her.attachment_style} attachment style, {her.love_language} love language), analyze her psychological reactions — which conversations/behaviors triggered positive responses, which hit her triggers>",
-        "compatibility_analysis": "<analyze the compatibility and friction points between the two — where they complement each other, where they might face long-term obstacles, overall compatibility>",
-        "what_she_told_friends": "<what did she tell her friends after the date? Write it in dialogue form, natural and casual, reflecting her true inner thoughts>",
-        "momentum": "<impact of this date on overall relationship progress: how much did it advance, stall, or regress? Why?>",
-        "next_date_suggestion": "<based on this specific date, give detailed suggestions for next time: where to go, what to do, which direction to focus on, and pitfalls to avoid>"
+        "her_psychology": "<analysis of her psychological reactions throughout: which moments activated her attachment patterns, what her {her.attachment_style} style meant for how she interpreted things, where her trust level shifted and why>",
+        "compatibility_analysis": "<honest assessment of their compatibility — specific complementary elements and friction points, not generic>",
+        "what_she_told_friends": "<realistic post-date debrief she'd give a close friend — casual, honest, specific to the conversation that happened>",
+        "momentum": "<did this date advance, maintain, or set back the relationship? By how much? Why? What specifically changed in her feelings?>",
+        "next_date_suggestion": "<specific, personality-matched suggestion for next date: exact type of location/activity that would suit where they are NOW in the relationship trajectory, what to focus on, what to avoid>"
     }}
 }}"""
 
     response = client.chat.completions.create(
         model="deepseek-chat",
         messages=[{"role": "user", "content": eval_prompt}],
-        max_tokens=3000,
+        max_tokens=3500,
+        temperature=0.4,  # Lower temp for more precise, consistent evaluation
     )
 
     raw = response.choices[0].message.content.strip()
@@ -211,6 +397,8 @@ Deeply analyze this date. Output ONLY valid JSON with all text fields in English
     )
 
 
+# ─── Main Simulation ──────────────────────────────────────────────────────────
+
 def simulate_date(
     her: PersonalityProfile,
     user: UserProfile,
@@ -221,25 +409,40 @@ def simulate_date(
     previous_date_result: DateResult = None,
     stream_callback=None,
     lang: str = "en",
+    date_history: list = None,
 ) -> DateResult:
-    """Simulate a date between two people using two DeepSeek agents."""
+    """
+    Simulate a date between two people using two DeepSeek agents.
 
-    her_system = _build_her_system_prompt(her, scenario, date_number)
-    user_system = _build_user_system_prompt(user, scenario, date_number)
+    date_history: full list of past session dicts — used to compute accumulated
+    emotional/trust state, inspired by MiroFish's agent state tracking across rounds.
+    """
+    # Compute relationship state from full history (MiroFish-inspired dynamic state)
+    relationship_state = _compute_relationship_state(date_history or [])
 
-    # Add previous date context if available
+    her_system = _build_her_system_prompt(her, scenario, date_number, relationship_state)
+    user_system = _build_user_system_prompt(user, scenario, date_number, relationship_state)
+
+    # Add most recent date context if available
     if previous_date_result and date_number > 1:
-        prev_context = f"\n\n=== PREVIOUS DATE ===\nSummary: {previous_date_result.summary}\nHer interest was {previous_date_result.her_interest_level}/10, chemistry {previous_date_result.chemistry_score}/10."
+        prev_context = (
+            f"\n\n=== MOST RECENT DATE ===\n"
+            f"Summary: {previous_date_result.summary}\n"
+            f"Her interest was {previous_date_result.her_interest_level}/10, "
+            f"chemistry {previous_date_result.chemistry_score}/10, "
+            f"next date probability was {previous_date_result.next_date_probability:.0%}."
+        )
         her_system += prev_context
         user_system += prev_context
 
     conversation_log = []
 
     # User opens the conversation
-    open_prompt = f"You've just arrived at {scenario.location} for {scenario.activity}. She's sitting across from you. Open the conversation naturally."
-    user_history = [
-        {"role": "user", "content": open_prompt}
-    ]
+    open_prompt = (
+        f"You've just arrived at {scenario.location} for {scenario.activity}. "
+        f"She's there. Open the conversation naturally — don't overthink it."
+    )
+    user_history = [{"role": "user", "content": open_prompt}]
     user_response = _run_agent_turn(client, user_system, user_history)
     conversation_log.append(f"{user.name}: {user_response}")
     if stream_callback:
@@ -247,14 +450,12 @@ def simulate_date(
 
     # Alternate turns
     for _ in range(num_exchanges):
-        # Her turn
         her_history = _build_chat_history(conversation_log, her.name, user.name, is_her=True)
         her_response = _run_agent_turn(client, her_system, her_history)
         conversation_log.append(f"{her.name}: {her_response}")
         if stream_callback:
             stream_callback(her.name, her_response)
 
-        # His turn
         user_history = _build_chat_history(conversation_log, her.name, user.name, is_her=False)
         user_response = _run_agent_turn(client, user_system, user_history)
         conversation_log.append(f"{user.name}: {user_response}")
@@ -262,50 +463,21 @@ def simulate_date(
             stream_callback(user.name, user_response)
 
     # Closing exchange
-    her_goodbye = "The date is wrapping up. How do you say goodbye?"
-    user_goodbye = "The date is ending. How do you say goodbye?"
-
     her_history = _build_chat_history(conversation_log, her.name, user.name, is_her=True)
-    her_history.append({"role": "user", "content": her_goodbye})
+    her_history.append({"role": "user", "content": "The date is wrapping up. How do you say goodbye?"})
     her_response = _run_agent_turn(client, her_system, her_history)
     conversation_log.append(f"{her.name}: {her_response}")
     if stream_callback:
         stream_callback(her.name, her_response)
 
     user_history = _build_chat_history(conversation_log, her.name, user.name, is_her=False)
-    user_history.append({"role": "user", "content": user_goodbye})
+    user_history.append({"role": "user", "content": "The date is ending. How do you say goodbye?"})
     user_response = _run_agent_turn(client, user_system, user_history)
     conversation_log.append(f"{user.name}: {user_response}")
     if stream_callback:
         stream_callback(user.name, user_response)
 
     full_conversation = "\n".join(conversation_log)
-    result = _evaluate_date(client, her, user, scenario, full_conversation, date_number)
+    result = _evaluate_date(client, her, user, scenario, full_conversation, date_number, relationship_state)
     result.full_conversation = full_conversation
     return result
-
-
-def _build_chat_history(conversation_log: list, her_name: str, user_name: str, is_her: bool) -> list:
-    """
-    Convert conversation log to OpenAI chat format.
-    Each agent sees their own lines as "assistant" and the other as "user".
-    """
-    my_name = her_name if is_her else user_name
-    other_name = user_name if is_her else her_name
-
-    messages = []
-    for line in conversation_log:
-        if line.startswith(f"{my_name}:"):
-            content = line[len(my_name) + 1:].strip()
-            messages.append({"role": "assistant", "content": content})
-        elif line.startswith(f"{other_name}:"):
-            content = line[len(other_name) + 1:].strip()
-            messages.append({"role": "user", "content": content})
-
-    # Ensure messages start with "user" role (OpenAI requirement)
-    if messages and messages[0]["role"] == "assistant":
-        messages.insert(0, {"role": "user", "content": "[Date begins]"})
-
-    # Prompt for next turn
-    messages.append({"role": "user", "content": "Continue the conversation. Respond naturally in 1-4 sentences. MUST be in English."})
-    return messages
