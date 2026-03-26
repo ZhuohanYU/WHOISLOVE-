@@ -1,6 +1,6 @@
 # 💘 WhereIsMyLove
 
-> An AI-powered dating simulation world — analyze personalities, simulate dates, and discover compatibility before the first real date.
+An AI-powered dating simulation world — analyze personalities, simulate dates, and discover compatibility before the first real date.
 
 ---
 
