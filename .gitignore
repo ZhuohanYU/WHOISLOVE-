@@ -15,7 +15,9 @@ build/
 
 # Data & uploads (user data, not for sharing)
 data/whoislove.db
-data/uploads/
+data/uploads/*
+!data/uploads/.gitkeep
+!data/.gitkeep
 
 # Claude Code local settings
 .claude/
