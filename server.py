@@ -9,7 +9,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, List
 
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, Header
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -48,11 +48,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def get_client() -> OpenAI:
-    api_key = os.environ.get("DEEPSEEK_API_KEY")
-    if not api_key:
-        raise HTTPException(status_code=500, detail="DEEPSEEK_API_KEY not configured")
-    return OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+def get_client(api_key: str = None) -> OpenAI:
+    key = api_key or os.environ.get("DEEPSEEK_API_KEY")
+    if not key:
+        raise HTTPException(status_code=401, detail="DeepSeek API key required. Please set your API key in Settings.")
+    return OpenAI(api_key=key, base_url="https://api.deepseek.com")
 
 executor = ThreadPoolExecutor(max_workers=4)
 
@@ -104,6 +104,24 @@ class AutoSimulateIn(BaseModel):
 class AnalyzeIn(BaseModel):
     lang: str = "en"
 
+# ─── API Key Validation ───────────────────────────────────────────────────────
+
+@app.post("/api/validate-key")
+def validate_key(x_api_key: Optional[str] = Header(None)):
+    key = x_api_key or os.environ.get("DEEPSEEK_API_KEY")
+    if not key:
+        raise HTTPException(status_code=401, detail="No API key provided")
+    try:
+        client = OpenAI(api_key=key, base_url="https://api.deepseek.com")
+        client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[{"role": "user", "content": "hi"}],
+            max_tokens=1,
+        )
+        return {"valid": True}
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid API key: {str(e)}")
+
 # ─── User Profile ─────────────────────────────────────────────────────────────
 
 @app.get("/api/user")
@@ -134,8 +152,9 @@ def get_user_files():
 async def upload_user_file(
     platform: str = Form(...),
     file: UploadFile = File(...),
+    x_api_key: Optional[str] = Header(None),
 ):
-    client = get_client()
+    client = get_client(x_api_key)
     file_bytes = await file.read()
     extracted = extract_text(file.filename, file_bytes, client)
     filetype = get_filetype_label(file.filename)
@@ -168,14 +187,14 @@ def get_user_personality(lang: str = "en"):
     }
 
 @app.post("/api/user/analyze")
-def analyze_user(body: AnalyzeIn = None, background_tasks: BackgroundTasks = None):
+def analyze_user(body: AnalyzeIn = None, background_tasks: BackgroundTasks = None, x_api_key: Optional[str] = Header(None)):
     if body is None: body = AnalyzeIn()
     task_id = f"analyze_user_{id(object())}"
     tasks[task_id] = {"status": "running", "result": None, "error": None}
 
     def do_analysis():
         try:
-            client = get_client()
+            client = get_client(x_api_key)
             user = load_user_profile()
             if not user:
                 raise ValueError("User profile is empty, please fill it in first")
@@ -284,8 +303,9 @@ async def upload_file(
     target_id: int,
     platform: str = Form(...),
     file: UploadFile = File(...),
+    x_api_key: Optional[str] = Header(None),
 ):
-    client = get_client()
+    client = get_client(x_api_key)
     file_bytes = await file.read()
     extracted = extract_text(file.filename, file_bytes, client)
     filetype = get_filetype_label(file.filename)
@@ -325,14 +345,14 @@ def get_personality(target_id: int, lang: str = "en"):
     }
 
 @app.post("/api/targets/{target_id}/analyze")
-def run_analysis(target_id: int, body: AnalyzeIn = None, background_tasks: BackgroundTasks = None):
+def run_analysis(target_id: int, body: AnalyzeIn = None, background_tasks: BackgroundTasks = None, x_api_key: Optional[str] = Header(None)):
     if body is None: body = AnalyzeIn()
     task_id = f"analyze_{target_id}_{id(object())}"
     tasks[task_id] = {"status": "running", "result": None, "error": None}
 
     def do_analysis():
         try:
-            client = get_client()
+            client = get_client(x_api_key)
             target_info = load_target(target_id)
             files = load_files_for_target(target_id)
 
@@ -380,13 +400,13 @@ def get_sessions(target_id: int, lang: str = "en"):
     return load_date_sessions(target_id, lang=lang)
 
 @app.post("/api/targets/{target_id}/simulate")
-def run_simulate(target_id: int, data: SimulateIn, background_tasks: BackgroundTasks):
+def run_simulate(target_id: int, data: SimulateIn, background_tasks: BackgroundTasks, x_api_key: Optional[str] = Header(None)):
     task_id = f"sim_{target_id}_{id(object())}"
     tasks[task_id] = {"status": "running", "result": None, "error": None, "conversation": []}
 
     def do_simulate():
         try:
-            client = get_client()
+            client = get_client(x_api_key)
             user_dict = load_user_profile(lang=data.lang) or {}
             user = UserProfile(
                 name=user_dict.get("name", "User"),
@@ -494,13 +514,13 @@ Return JSON only: {{"location": "...", "activity": "..."}}"""
 
 
 @app.post("/api/targets/{target_id}/auto-simulate")
-def run_auto_simulate(target_id: int, data: AutoSimulateIn, background_tasks: BackgroundTasks):
+def run_auto_simulate(target_id: int, data: AutoSimulateIn, background_tasks: BackgroundTasks, x_api_key: Optional[str] = Header(None)):
     task_id = f"autosim_{target_id}_{id(object())}"
     tasks[task_id] = {"status": "running", "result": None, "error": None, "conversation": [], "scenario": None}
 
     def do_auto_simulate():
         try:
-            client = get_client()
+            client = get_client(x_api_key)
             user_dict = load_user_profile(lang=data.lang) or {}
             user = UserProfile(
                 name=user_dict.get("name", "User"),
@@ -570,8 +590,8 @@ def run_auto_simulate(target_id: int, data: AutoSimulateIn, background_tasks: Ba
 
 
 @app.post("/api/targets/{target_id}/compatibility")
-def get_compatibility_report(target_id: int, lang: str = "en"):
-    client = get_client()
+def get_compatibility_report(target_id: int, lang: str = "en", x_api_key: Optional[str] = Header(None)):
+    client = get_client(x_api_key)
     her = load_latest_personality(target_id, lang=lang)
     user_dict = load_user_profile(lang=lang) or {}
     sessions = load_date_sessions(target_id, lang=lang)

@@ -83,6 +83,12 @@
       <button id="btn_lang_en" onclick="setLang('en')" class="btn-primary text-xs" style="flex:1">EN</button>
     </div>
   </div>
+  <div style="padding:12px 16px; border-top:1px solid #333; margin-top:4px">
+    <div style="font-size:11px; color:#666; margin-bottom:6px;">🔑 DeepSeek API Key</div>
+    <input id="apiKeyInput" type="password" placeholder="sk-..." class="input text-xs w-full" style="font-size:11px;"
+      oninput="onApiKeyInput()" value="">
+    <div id="apiKeyStatus" style="font-size:10px; margin-top:4px; color:#666;"></div>
+  </div>
 </div>
 
 <!-- ─── Main ────────────────────────────────────────────────── -->
@@ -1427,8 +1433,15 @@ function toast(msg, type = 'ok') {
 }
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
+function getApiKey() {
+  return localStorage.getItem('deepseek_api_key') || '';
+}
+
 async function api(method, path, body) {
-  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  const headers = { 'Content-Type': 'application/json' };
+  const key = getApiKey();
+  if (key) headers['X-API-Key'] = key;
+  const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch('/api' + path, opts);
   if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'API error'); }
@@ -1527,7 +1540,8 @@ async function onUserFileSelect(files) {
     const fd = new FormData();
     fd.append('platform', platform);
     fd.append('file', f);
-    const r = await fetch('/api/user/files', { method: 'POST', body: fd });
+    const _h1 = {}; if (getApiKey()) _h1['X-API-Key'] = getApiKey();
+    const r = await fetch('/api/user/files', { method: 'POST', body: fd, headers: _h1 });
     if (!r.ok) { toast(t('upload_fail')(f.name), 'err'); }
   }
 
@@ -1707,7 +1721,8 @@ async function onFileSelect(files) {
     const fd = new FormData();
     fd.append('platform', platform);
     fd.append('file', f);
-    const r = await fetch(`/api/targets/${currentTargetId}/files`, { method: 'POST', body: fd });
+    const _h2 = {}; if (getApiKey()) _h2['X-API-Key'] = getApiKey();
+    const r = await fetch(`/api/targets/${currentTargetId}/files`, { method: 'POST', body: fd, headers: _h2 });
     if (!r.ok) { toast(t('upload_fail')(f.name), 'err'); }
   }
 
@@ -1780,7 +1795,8 @@ document.addEventListener('paste', async (e) => {
       const fd = new FormData();
       fd.append('platform', platform);
       fd.append('file', blob, filename);
-      const r = await fetch(`/api/targets/${currentTargetId}/files`, { method: 'POST', body: fd });
+      const _h3 = {}; if (getApiKey()) _h3['X-API-Key'] = getApiKey();
+      const r = await fetch(`/api/targets/${currentTargetId}/files`, { method: 'POST', body: fd, headers: _h3 });
       if (!r.ok) { toast('Image analysis failed', 'err'); }
     }
 
@@ -1810,7 +1826,8 @@ document.addEventListener('paste', async (e) => {
       const fd = new FormData();
       fd.append('platform', platform);
       fd.append('file', blob, filename);
-      const r = await fetch('/api/user/files', { method: 'POST', body: fd });
+      const _h4 = {}; if (getApiKey()) _h4['X-API-Key'] = getApiKey();
+      const r = await fetch('/api/user/files', { method: 'POST', body: fd, headers: _h4 });
       if (!r.ok) { toast('Image analysis failed', 'err'); }
     }
 
@@ -2537,8 +2554,31 @@ async function loadHistoryDetail() {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
+let _apiKeyTimer = null;
+function onApiKeyInput() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const status = document.getElementById('apiKeyStatus');
+  localStorage.setItem('deepseek_api_key', key);
+  clearTimeout(_apiKeyTimer);
+  if (!key) { status.textContent = ''; return; }
+  status.style.color = '#666';
+  status.textContent = currentLang === 'zh' ? '验证中…' : 'Validating…';
+  _apiKeyTimer = setTimeout(async () => {
+    try {
+      await api('POST', '/validate-key');
+      status.style.color = '#4ade80';
+      status.textContent = currentLang === 'zh' ? '✓ Key 有效' : '✓ Valid key';
+    } catch (e) {
+      status.style.color = '#f87171';
+      status.textContent = currentLang === 'zh' ? '✗ Key 无效' : '✗ Invalid key';
+    }
+  }, 800);
+}
+
 async function init() {
   setLang(currentLang);
+  const savedKey = localStorage.getItem('deepseek_api_key') || '';
+  if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
   await loadUserProfile();
   await loadTargetSelector();
 }
